@@ -28,7 +28,7 @@ class ProblemDescriptionSearchTool(BaseTool):
     args_schema : Type[BaseModel] = ProblemStatementUrl
     return_direct: bool = True
 
-    def _run(self, query : str, run_maanger : Optional[CallbackManagerForToolRun] = None) -> str:
+    def _run(self, query : str, run_manager : Optional[CallbackManagerForToolRun] = None) -> str:
         """ 
             Use the tool for getting the problem description
         """
