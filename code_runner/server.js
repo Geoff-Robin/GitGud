@@ -7,38 +7,38 @@ const path = require('path');
 const app = express();
 app.use(bodyParser.json());
 
+const tempDir = path.join(__dirname, 'temp');
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir);
+}
+
 app.post('/execute', (req, res) => {
     const { language, code } = req.body;
-
-    const tempDir = './temp';
-    if (!fs.existsSync(tempDir)) {
-        fs.mkdirSync(tempDir);
-    }
-
     let command;
+    let filename, executable;
+
     switch (language) {
         case 'python':
-            const filename_py = path.join(tempDir,'temp.py')
-            fs.writeFileSync(filename_py,code);
-            command = `python3 -c temp/${filename_py}`;
+            filename = path.join(tempDir, 'temp.py');
+            fs.writeFileSync(filename, code);
+            command = `python3 ${filename}`;
             break;
         case 'c':
-            const filename_c = path.join(tempDir,'temp.c');
-            const executable_c = path.join(tempDir,'temp_executable')
-            fs.writeFileSync(filename_c, code);
-            command = `g++ temp/${filename_c} -o ${executable_c} ; ${executable_c}`;
-            break;
-        case 'c++': 
-            const filename_cpp = path.join(tempDir, 'temp.cpp');
-            const executable_cpp = path.join(tempDir, 'temp_executable');
-            fs.writeFileSync(filename_cpp, code);
-            command = `g++ ${filename_cpp} -o ${executable_cpp} ; ${executable_cpp}`;
+        case 'c++':
+            const extension = language === 'c' ? 'c' : 'cpp';
+            filename = path.join(tempDir, `temp.${extension}`);
+            executable = path.join(tempDir, 'temp_executable');
+            fs.writeFileSync(filename, code);
+            command = `g++ ${filename} -o ${executable} && ${executable}`;
             break;
         default:
             return res.status(400).send('Unsupported language');
     }
 
     exec(command, (error, stdout, stderr) => {
+        fs.unlinkSync(filename);
+        if (executable && fs.existsSync(executable)) fs.unlinkSync(executable);
+
         if (error) {
             return res.status(500).send(stderr);
         }
