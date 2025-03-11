@@ -1,12 +1,9 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const { exec } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-
 const app = express();
-app.use(bodyParser.json());
-
+app.use(express.json());
 const tempDir = path.join(__dirname, "temp");
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir);
@@ -31,8 +28,14 @@ app.post("/execute", (req, res) => {
       fs.writeFileSync(filename, code);
       command = `g++ ${filename} -o ${executable} && ${executable}`;
       break;
+    case "java":
+        filename = path.join(tempDir, "Temp.java"); // Java class name must match filename
+        fs.writeFileSync(filename, code);
+        command = `javac ${filename} && java -cp ${tempDir} Temp`;
+        break;
+    
     default:
-      return res.status(400).send({
+      return res.status(400).json({
         error: "Unsupported language",
       });
   }
@@ -42,10 +45,12 @@ app.post("/execute", (req, res) => {
     if (executable && fs.existsSync(executable)) fs.unlinkSync(executable);
 
     if (error) {
-      return res.status(500).send(stderr);
+      return res.status(500).json(stderr);
     }
-    res.status(200).send({
-        output: stdout
+    const output = stdout.trim();
+    const result = output === "true";
+    res.status(200).json({
+        "output" : result
     });
   });
 });
