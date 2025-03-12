@@ -1,9 +1,11 @@
 const express = require("express");
 const { exec } = require("child_process");
+const morgan =require("morgan")
 const fs = require("fs");
 const path = require("path");
 const app = express();
 app.use(express.json());
+app.use(morgan("combined"))
 const tempDir = path.join(__dirname, "temp");
 if (!fs.existsSync(tempDir)) {
   fs.mkdirSync(tempDir);

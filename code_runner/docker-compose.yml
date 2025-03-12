@@ -6,5 +6,5 @@ services:
       - "3000:3000"
     volumes:
       - .:/app
-    command: ["node", "server.js"]
+    command: ["npm", "start"]
 
