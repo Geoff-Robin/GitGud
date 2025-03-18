@@ -5,8 +5,6 @@ import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from routes.routes import router
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-import traceback
 
 @asynccontextmanager
 async def db_lifespan(app: FastAPI):
