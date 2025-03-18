@@ -1,40 +1,62 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Response, status, Request
 from db_models import User
-from routes.models import AuthResModel, RegisterReqModel,LoginReqModel
-from auth_utils import get_hashed_password,create_access_token,create_refresh_token
+from routes.models import AuthResModel, RegisterReqModel, LoginReqModel
+from auth_utils import get_hashed_password, create_access_token, create_refresh_token
+import logging
+from starlette.exceptions import HTTPException
+
 router = APIRouter()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @router.post(
     "/register",
     response_model=AuthResModel,
-    summary="registering user and return JWT tokens",
+    summary="Register user and return JWT tokens",
 )
-async def register(user: RegisterReqModel):
-    user = User(
-        username=user.username,
-        email=user.email,
-        password=get_hashed_password(user.password),
+async def register(user: RegisterReqModel, response: Response, request: Request):
+    user_data = {
+        "username": user.username,
+        "email": user.email,
+        "password": await get_hashed_password(user.password),
+    }
+    Users = request.app.database["Users"]
+    try:
+        await Users.insert_one(user_data)
+    except Exception as e:
+        logger.error(f"Error inserting user: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        return {"error": "Error inserting user"}
+
+    return AuthResModel(
+        REFRESH_TOKEN=await create_refresh_token(user.email),
+        ACCESS_TOKEN=await create_access_token(user.email),
     )
-    Users = app.database["Users"]
+
+@router.post(
+    "/login",
+    response_model=AuthResModel,
+    summary="Login user and return JWT Tokens",
+)
+async def login(login_data: LoginReqModel, response: Response, request: Request):
     try:
-        user = await Users.insert_one(user)
+        Users = request.app.database["Users"]
+        user = await Users.find_one({"email": login_data.email})
+        if not user:
+            response.status_code = status.HTTP_404_NOT_FOUND
+            return {"error": "User does not exist or could not be found"}
+
+        if not user["password"] == await get_hashed_password(login_data.password):
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            return {"error": "Invalid password"}
+
+        return AuthResModel(
+            REFRESH_TOKEN=await create_refresh_token(user["email"]),
+            ACCESS_TOKEN=await create_access_token(user["email"]),
+        )
     except Exception as e:
-        print(e)
-    return AuthResModel(REFRESH_TOKEN=create_refresh_token(user.email),ACCESS_TOKEN=create_access_token(user.email))
-
-@router.post("/login",
-             response_model=AuthResModel,
-             summary="logging user in and return JWT Tokens")
-
-async def login(login_data: LoginReqModel):
-    Users = app.database["Users"]
-    try:
-        user = await Users.find_one({"email":login_data.email})
-    except Exception as e:
-        return {
-            "error":e
-        }
-    if user.password = get_hashed_password(login_data.)
-    return AuthResModel(REFRESH_TOKEN=create_refresh_token(user.email),ACCESS_TOKEN=create_access_token)
-
+        logger.error(f"Error during login: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        raise HTTPException(status_code=500, detail=str(e))
