@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, status, Request
 from db_models import User
 from routes.models import AuthResModel, RegisterReqModel, LoginReqModel
-from auth_utils import get_hashed_password, create_access_token, create_refresh_token
+from auth_utils import get_hashed_password, create_access_token, create_refresh_token, verify_password
 import logging
 from starlette.exceptions import HTTPException
 
@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 @router.post(
     "/register",
-    response_model=AuthResModel,
     summary="Register user and return JWT tokens",
 )
 async def register(user: RegisterReqModel, response: Response, request: Request):
@@ -23,6 +22,9 @@ async def register(user: RegisterReqModel, response: Response, request: Request)
         "password": await get_hashed_password(user.password),
     }
     Users = request.app.database["Users"]
+    user_db = await Users.find_one({"email": user.email})
+    if user_db:
+        return {"message": "User already exists"}
     try:
         await Users.insert_one(user_data)
     except Exception as e:
@@ -35,9 +37,9 @@ async def register(user: RegisterReqModel, response: Response, request: Request)
         ACCESS_TOKEN=await create_access_token(user.email),
     )
 
+
 @router.post(
     "/login",
-    response_model=AuthResModel,
     summary="Login user and return JWT Tokens",
 )
 async def login(login_data: LoginReqModel, response: Response, request: Request):
@@ -48,7 +50,7 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
             response.status_code = status.HTTP_404_NOT_FOUND
             return {"error": "User does not exist or could not be found"}
 
-        if not user["password"] == await get_hashed_password(login_data.password):
+        if not verify_password(user["password"],login_data.password):
             response.status_code = status.HTTP_401_UNAUTHORIZED
             return {"error": "Invalid password"}
 
