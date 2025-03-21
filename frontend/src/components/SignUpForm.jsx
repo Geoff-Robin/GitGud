@@ -1,6 +1,6 @@
 import React from 'react';
 // Import but don't use immediately
- import SocialLogin from './SocialLogin';
+
 
 const SignUpForm = () => {
   return (
@@ -11,7 +11,7 @@ const SignUpForm = () => {
       </div>
       
        
-      <SocialLogin />
+      
       
       
       
