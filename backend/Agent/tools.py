@@ -54,3 +54,9 @@ class ProblemDescriptionSearchTool(BaseTool):
     ) -> str:
         """Use the tool asynchronously."""
         raise NotImplementedError("ProblemDescrptionSearchTool does not support async")
+    
+
+class MessageTimeStampDifference(BaseTool):
+    name="getMessageTimeStampDifference"
+    description = "use it to get difference between current user message timestamp and the last user message timestamp."
+    
