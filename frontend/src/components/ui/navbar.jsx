@@ -8,16 +8,16 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
   
   return (
-    <div className="w-full bg-black dark:bg-black border-b border-gray-800">
+    <div className="w-full bg-black dark:bg-foreground border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
           <div className="flex-shrink-0">
             <h1 
-              className="text-white text-xl font-bold cursor-pointer" 
+              className="text-white text-xl font-bold cursor-pointer dark:text-black" 
               onClick={() => navigate("/")}
             >
-              LeetHelp
+              GitGud
             </h1>
           </div>
           
@@ -26,7 +26,7 @@ const Navbar = () => {
             {/* Login Button */}
             <button
               onClick={() => navigate("/login")}
-              className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
+              className="text-white dark:text-black hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
             >
               Login
             </button>
