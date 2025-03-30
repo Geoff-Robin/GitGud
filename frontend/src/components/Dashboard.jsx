@@ -5,6 +5,7 @@ import { TypingAnimation } from "@/components/ui/typing-animation";
 import { CardsExplain } from "@/components/cardsExplain";
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import Footer from "@/components/ui/footer";
+import Navbar from "@/components/ui/navbar"; // Import the Navbar component
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ function Dashboard() {
 
   return (
     <div className="relative">
+      {/* Navbar at the top */}
+      <Navbar />
+      
       {/* Hero Section with 3D Card */}
       <AuroraBackground className="min-h-[80vh] flex flex-col items-center px-4">
         <div className="max-w-7xl mx-auto w-full">
@@ -46,29 +50,10 @@ function Dashboard() {
                       alt="dashboard background"
                     />
                   </CardItem>
-
-                  {/* Buttons for Login and Signup */}
-                  <div className="flex justify-between items-center mt-6">
-                    <CardItem
-                      translateZ={20}
-                      as="button"
-                      onClick={() => navigate("/login")}
-                      className="px-6 py-3 rounded-xl text-white text-lg font-bold cursor-pointer transition-colors"
-                    >
-                      Login
-                    </CardItem>
-
-                    <CardItem
-                      translateZ={20}
-                      as="button"
-                      onClick={() => navigate("/signup")}
-                      className="px-6 py-3 rounded-xl text-white text-lg font-bold cursor-pointer transition-colors"
-                    >
-                      Sign up
-                    </CardItem>
-                  </div>
                 </CardBody>
               </CardContainer>
+              
+              {/* Removed the Login and Signup buttons from here */}
             </div>
           </div>
         </div>
@@ -76,15 +61,15 @@ function Dashboard() {
 
       {/* "What We Offer" Section with Aurora Background */}
       <AuroraBackground className="py-12 mt-[-120px]">
-  <div ref={cardsRef} className="max-w-7xl mx-auto px-4">
-    <h2 className="text-white text-4xl font-bold text-center mb-12">
-      What We Offer
-    </h2>
-    <CardsExplain />
-  </div>
-  
-</AuroraBackground>
-<Footer />
+        <div ref={cardsRef} className="max-w-7xl mx-auto px-4">
+          <h2 className="text-white text-4xl font-bold text-center mb-12">
+            What We Offer
+          </h2>
+          <CardsExplain />
+        </div>
+      </AuroraBackground>
+      
+      <Footer />
 
       {/* Back to top button */}
       <button 
@@ -95,7 +80,7 @@ function Dashboard() {
       >
         <svg 
           xmlns="http://www.w3.org/2000/svg" 
-          className="h-3 w-6 text-white" 
+          className="h-6 w-3 text-white" 
           fill="none" 
           viewBox="0 0 24 24" 
           stroke="currentColor"
