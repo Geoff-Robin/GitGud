@@ -26,7 +26,7 @@ const Navbar = () => {
             {/* Login Button */}
             <button
               onClick={() => navigate("/login")}
-              className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium"
+              className="text-white hover:text-gray-300 px-3 py-2 rounded-md text-sm font-medium cursor-pointer"
             >
               Login
             </button>
@@ -34,7 +34,7 @@ const Navbar = () => {
             {/* Sign Up Button */}
             <button
               onClick={() => navigate("/signup")}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 cursor-pointer"
             >
               Sign Up
             </button>
@@ -42,14 +42,14 @@ const Navbar = () => {
             {/* Dark Mode Toggle */}
             <button 
               onClick={toggleTheme}
-              className="bg-gray-800 dark:bg-gray-700 p-2 rounded-full transition-colors"
+              className="bg-gray-800 dark:bg-gray-700 p-2 rounded-full transition-colors cursor-pointer"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {theme === 'dark' ? (
                 // Moon icon for dark mode
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
-                  className="h-5 w-5 text-white" 
+                  className="h-5 w-5 text-white " 
                   viewBox="0 0 20 20" 
                   fill="currentColor"
                 >
