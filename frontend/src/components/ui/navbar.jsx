@@ -7,7 +7,7 @@ const Navbar = () => {
   const { theme, toggleTheme } = useTheme();
 
   return (
-    <div className="sticky top-0 z-50 bg-background bg-opacity-30 backdrop-filter backdrop-blur-lg border-b-0 border-gray-100">
+    <div className="md:sticky md:top-0 md:z-50 bg-background bg-opacity-30 backdrop-filter backdrop-blur-lg border-b-0 border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo/Brand */}
