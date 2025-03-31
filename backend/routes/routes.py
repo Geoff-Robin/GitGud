@@ -1,7 +1,13 @@
-from fastapi import APIRouter, Response, status, Request
+from fastapi import APIRouter, Response, status, Request, Depends
 from db_models import User
-from routes.models import AuthResModel, RegisterReqModel, LoginReqModel
-from auth_utils import get_hashed_password, create_access_token, create_refresh_token, verify_password
+from routes.models import AuthResModel, RegisterReqModel, LoginReqModel, CreateChatReqModel
+from auth_utils import (
+    get_hashed_password,
+    create_access_token,
+    create_refresh_token,
+    verify_password,
+    get_current_user
+)
 import logging
 from starlette.exceptions import HTTPException
 
@@ -50,7 +56,7 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
             response.status_code = status.HTTP_404_NOT_FOUND
             return {"error": "User does not exist or could not be found"}
 
-        if not verify_password(user["password"],login_data.password):
+        if not verify_password(user["password"], login_data.password):
             response.status_code = status.HTTP_401_UNAUTHORIZED
             return {"error": "Invalid password"}
 
@@ -62,3 +68,43 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
         logger.error(f"Error during login: {e}")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/refresh", summary="Refresh JWT tokens")
+async def refresh_token(request: Request, response: Response, user = Depends(get_current_user)):
+    try:
+        user_email = user['email']
+        if not user_email:
+            response.status_code = status.HTTP_401_UNAUTHORIZED
+            return {"error": "Invalid refresh token"}
+        return {
+            "ACCESS_TOKEN": await create_access_token(user_email),
+        }
+    except Exception as e:
+        logger.error(f"Error during token refresh: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.post("/create_chat", summary="Create a new chat room for a leetcode problem")
+
+async def create_chat(chat: CreateChatReqModel,request: Request, response: Response, user = Depends(get_current_user)):
+    try:
+        problem_url = chat.problem_url
+        problem_nickname = chat.problem_nickname
+        if problem_nickname:
+            request.app.database["Chat List"].insert_one({
+                "problem": problem_nickname,
+                "email": user["email"],
+            })
+        else:
+            request.app.database["Chat List"].insert_one({
+                "problem": problem_url,
+                "email": user["email"],
+            })
+        return {"message": "Chat created successfully"}
+    except Exception as e:
+        logger.error(f"Error creating chat: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        raise HTTPException(status_code=500, detail=str(e))
+            
+        

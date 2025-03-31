@@ -1,6 +1,6 @@
 from typing import TypedDict
 from fastapi import Body
-from pydantic import BaseModel, Field
+from pydantic.v1 import BaseModel, Field
 from datetime import datetime
 
 
@@ -21,3 +21,7 @@ class ArgsSchema(BaseModel):
     current_timestamp: datetime = Field(
         ..., description="The timestamp of the current user message in ISO 8601 format."
     )
+
+class TimeStampDifferenceInput(BaseModel):
+    first_timestamp: str = Field(..., description="The first timestamp in ISO 8601 format.")
+    second_timestamp: str = Field(..., description="The second timestamp in ISO 8601 format.")

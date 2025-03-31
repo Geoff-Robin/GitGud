@@ -21,11 +21,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    email: str | None = None
 
 
 async def get_user(db, email: str):
-    user = db.find_one({"email": email})
+    user = await db.Users.find_one({"email": email})
     return user
 
 
@@ -75,14 +75,16 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if username is None:
+        payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        print("decoded payload", payload)
+        email = payload.get("sub")
+        print("email: ", email)
+        if email is None:
             raise credentials_exception
-        token_data = TokenData(username=username)
+        token_data = TokenData(email=email)
     except InvalidTokenError:
         raise credentials_exception
-    user = get_user(request.app.database, username=token_data.username)
+    user = await get_user(request.app.database, email=token_data.email)
     if user is None:
         raise credentials_exception
     return user
