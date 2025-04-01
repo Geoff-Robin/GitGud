@@ -1,17 +1,18 @@
-from typing import TypedDict
+from typing import TypedDict,Literal
 from fastapi import Body
 from pydantic.v1 import BaseModel, Field
 from datetime import datetime
-
+from langgraph.prebuilt import Agent
 
 class ProblemStatementUrl(BaseModel):
     query: str = Field(
         description="should be a url of the format https:/leetcode.com/problems/problem_name/description"
     )
 
-class ExtractPythonCode(TypedDict):
+class ExtractCode(TypedDict):
     """Type class for extracting Python code. The python_code field is the code to be extracted."""
-    python_code: str
+    code: str
+    language: str | None
 
 class NoCode(TypedDict):
     """Type class for indicating no code was found."""
