@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
-
+from datetime import datetime
 class AuthResModel(BaseModel):
     ACCESS_TOKEN : str
     REFRESH_TOKEN : str 
@@ -17,3 +17,12 @@ class LoginReqModel(BaseModel):
 class CreateChatReqModel(BaseModel):
     problem_url : str
     problem_nickname : Optional[str] = None
+    
+class ChatRoom(BaseModel):
+    problem: str
+    email: str
+    
+class ChatMessage(BaseModel):
+    message: str
+    email: str
+    problem: str

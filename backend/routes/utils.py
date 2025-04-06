@@ -1,55 +1,50 @@
 import requests
-from dotenv import load_dotenv
+import json
 from bs4 import BeautifulSoup
-import os
-import random
 
-load_dotenv()
-LEETCODE_API = os.getenv("LEETCODE_API_URL")
-
-def load_proxies(file_path='proxy.txt') -> list:
-    """Load proxies from a file and return them as a list."""
-    with open(file_path, 'r') as file:
-        proxies = [line.strip() for line in file.readlines()]
-    return proxies
-
-def scraper(query: str) -> str:
+def scraper(problem_slug):
     """
-    Scrape the problem statement from LeetCode using the provided URL.
-    The URL should be in the format: https://leetcode.com/problems/problem_name/description
-    Returns the problem statement as a string.
+    Fetches and extracts the text description of a LeetCode problem using its slug.
+
+    Parameters:
+    - problem_slug (str): The slug of the LeetCode problem (e.g., 'two-sum').
+
+    Returns:
+    - str: The problem description as plain text, or an error message if the request fails.
     """
-    proxies_list = load_proxies()
-    temp = ""
-    found = False
-    for i in query:
-        temp += i
-
-        if temp != "https:/leetcode.com/problems/":
-            found = True
-
-        elif found:
-            if i == "/":
-                break
-    problem_name = temp[: len(temp) - 2]
-    proxy_address = random.choice(proxies_list)
-    proxies = {
-        'http': f'http://{proxy_address}',
-        'https': f'https://{proxy_address}',
+    url = 'https://leetcode.com/graphql/'
+    headers = {
+        'Content-Type': 'application/json',
+        'Referer': f'https://leetcode.com/problems/{problem_slug}/'
+    }
+    payload = {
+        'operationName': 'questionData',
+        'variables': {'titleSlug': problem_slug},
+        'query': '''
+        query questionData($titleSlug: String!) {
+          question(titleSlug: $titleSlug) {
+            content
+          }
+        }
+        '''
     }
 
     try:
-        description_response = requests.get(
-            LEETCODE_API + "/select?titleSlug=" + problem_name,
-            proxies=proxies,
-            timeout=10 
-        )
-        description_response.raise_for_status()
-        description_json = description_response.json()
-        description = description_json["question"]
-        soup = BeautifulSoup(description, "html.parser")
-        text = soup.get_text(separator="\n")
-        return text.strip()
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        response.raise_for_status()
+        data = response.json()
+        if 'errors' in data:
+            return f"Error: {data['errors']}"
+
+        # Extract the HTML content
+        html_content = data['data']['question']['content']
+        
+        # Parse the HTML content with BeautifulSoup
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        # Extract text from the parsed HTML
+        text = soup.get_text(separator='\n', strip=True)
+        
+        return text
     except requests.RequestException as e:
-        print(f"Request failed: {e}")
-        return ""
+        return f"Request failed: {e}"

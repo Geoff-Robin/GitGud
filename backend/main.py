@@ -43,4 +43,4 @@ app.include_router(router=router)
 
 if __name__ == "__main__" :
     import uvicorn
-    uvicorn.run(app,port = 4000)
+    uvicorn.run(app,port = 1000)

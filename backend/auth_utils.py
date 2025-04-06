@@ -66,6 +66,34 @@ async def get_hashed_password(password: str) -> str:
     return password_context.hash(password)
 
 
+async def get_current_user_refresh(request: Request):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        body = await request.json()
+        token = body.get("refresh_token")
+        if not token:
+            raise credentials_exception
+        
+        payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        
+        token_data = TokenData(email=email)
+    except (InvalidTokenError, ValueError):
+        raise credentials_exception
+    
+    user = await get_user(request.app.database, email=token_data.email)
+    if user is None:
+        raise credentials_exception
+    
+    return user
+
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], request: Request
 ):
@@ -75,7 +103,7 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
         print("decoded payload", payload)
         email = payload.get("sub")
         print("email: ", email)
