@@ -257,3 +257,13 @@ async def chat_message(
         logger.error(f"Error sending message: {e}")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/get_chats",summary="get chat history")
+async def get_chats(chat:ChatRoom, request: Request, response: Response, user=Depends(get_current_user)):
+    try:
+        chats = await request.app.database["Chat List"].find({"email": user["email"]}).sort("timestamp",ASCENDING).to_list(length=None)
+        return chats
+    except Exception as e:
+        logger.error(f"Error retrieving chats: {e}")
+        response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        raise HTTPException(status_code=500, detail=str(e))
