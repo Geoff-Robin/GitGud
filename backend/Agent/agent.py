@@ -87,7 +87,7 @@ class ChatBot:
         return state
 
     def create_reflection(self):
-        ag = (
+        agent_graph = (
             StateGraph(State)
             .add_node(self.summarize, "summarize")
             .add_node(self.call_model, "call_model")
@@ -96,14 +96,14 @@ class ChatBot:
             .add_edge("call_model", END)
             .compile()
         )
-        jg = (
+        judge_graph= (
             StateGraph(State)
             .add_node(self.try_running, "try_running")
             .add_edge(START, "try_running")
             .add_edge("try_running", END)
             .compile()
         )
-        return create_reflection_graph(ag, jg).compile()
+        return create_reflection_graph(agent_graph, judge_graph).compile()
 
     def chat(self) -> Dict[str, Any]:
         graph = self.create_reflection()
