@@ -1,8 +1,18 @@
 import React from 'react';
-// Import but don't use immediately
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import ProblemEntryPage from './ProblemEntryPage';
 
-
+// SignUpForm component with navigation
 const SignUpForm = () => {
+  const navigate = useNavigate();
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Here you would typically validate the form and maybe send data to a backend
+    // After successful signup, navigate to the ProblemEntryPage
+    navigate('/problems');
+  };
+
   return (
     <div className="w-full max-w-md">
       <div className="text-center mb-10">
@@ -10,13 +20,8 @@ const SignUpForm = () => {
         <p className="text-xl text-white">We are glad to see you :)</p>
       </div>
       
-       
-      
-      
-      
-      
       {/* Form fields */}
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-white text-sm mb-1">Name</label>
@@ -58,5 +63,19 @@ const SignUpForm = () => {
     </div>
   );
 };
+
+// Main App component with routing
+function App() {
+  return (
+    <Router>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 to-indigo-900 p-6">
+        <Routes>
+          <Route path="/" element={<SignUpForm />} />
+          <Route path="/problems" element={<ProblemEntryPage />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
 
 export default SignUpForm;
