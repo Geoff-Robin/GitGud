@@ -1,11 +1,11 @@
-@import "tailwindcss";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Boldonse&display=swap');
 
+@import "tailwindcss";
 @plugin "tailwindcss-animate";
 
-@custom-variant dark (&:is(.dark *));
+.title{
+  font-family: 'Orbitron', sans-serif;
+}
 
 :root {
   --background: oklch(1 0 0);

@@ -6,12 +6,12 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-r from-black to-gray-600 text-white py-12">
+    <footer className="bg-gradient-to-r from-black to-gray-600 text-white py-12 dark:from-gray-600 dark:to-black">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Company Info */}
           <div className="col-span-1">
-            <h3 className="text-xl font-bold mb-4">CodeCompete</h3>
+            <h3 className="text-xl mb-4 title">GitGud</h3>
             <p className="text-gray-400 mb-4">
               A guided competitive coding platform to enhance your programming skills
               through challenges, tutorials, and competitions.
