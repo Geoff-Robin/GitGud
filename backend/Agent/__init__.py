@@ -1,8 +1,8 @@
 from agent import *
-from fastapi import APIRouter,Depends,Request,Response,status
+from fastapi import APIRouter, Depends, Request, Response, status
 from Auth import get_current_user
 import datetime as dt
-from pymongo import DESCENDING,ASCENDING
+from pymongo import DESCENDING, ASCENDING
 from Agent.models import ChatMessage
 from datetime import datetime, timezone
 import logging
@@ -12,6 +12,7 @@ agent_router = APIRouter()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 
 @agent_router.post("/chat_message", summary="Send a message in a chat room")
 async def chat_message(
@@ -56,12 +57,17 @@ async def chat_message(
             return {"error": "Chat not found"}
 
         # Fetch all chat history sorted by timestamp DESCENDING
-        chat_history = await request.app.database["Messages"].find(
-            {
-                "problem": chat_message.problem,
-                "email": user["email"],
-            }
-        ).sort("timestamp", DESCENDING).to_list(length=None)
+        chat_history = (
+            await request.app.database["Messages"]
+            .find(
+                {
+                    "problem": chat_message.problem,
+                    "email": user["email"],
+                }
+            )
+            .sort("timestamp", DESCENDING)
+            .to_list(length=None)
+        )
 
         if not chat_history:
             response.status_code = status.HTTP_404_NOT_FOUND
@@ -73,7 +79,7 @@ async def chat_message(
                 "problem": chat_message.problem,
                 "email": user["email"],
             },
-            sort=[("timestamp", ASCENDING)]
+            sort=[("timestamp", ASCENDING)],
         )
 
         time_difference_minutes = None
@@ -88,13 +94,24 @@ async def chat_message(
         # Format history for ChatBot
         formatted_history = [
             {"role": m["role"], "content": m["message"]}
-            for m in chat_history if m["role"] != "system"
+            for m in chat_history
+            if m["role"] != "system"
         ]
 
         summary = chat.get("summary", "")
         problem = chat.get("problem_statement", "")
-
-        chatbot = ChatBot(messages=formatted_history, summary=summary, problem=problem)
+        if time_difference_minutes <= 20:
+            chatbot = ChatBot(
+                messages=formatted_history, summary=summary, problem=problem
+            )
+        elif time_difference_minutes > 20 and time_difference_minutes <= 40:
+            chatbot = ChatBot(
+                messages=formatted_history, summary=summary, problem=problem, level=1
+            )
+        elif time_difference_minutes > 40:
+            chatbot = ChatBot(
+                messages=formatted_history, summary=summary, problem=problem, level=2
+            )
         result = chatbot.chat()
 
         # Update summary
