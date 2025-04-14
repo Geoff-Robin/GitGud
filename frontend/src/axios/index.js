@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useContext, useEffect } from "react";
-import { AuthContext } from "@/store/auth-context"; // Adjust path as necessary
+import { AuthContext } from "@/context/auth-context"; // Adjust path as necessary
 
 //const API_URL = "http://127.0.0.1:8000/api/";
 const isDevelopment=import.meta.env.VITE_MODE==='development'

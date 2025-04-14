@@ -1,14 +1,57 @@
-import React from 'react';
+import React, { useState, useContext } from 'react';
+import { axiosInstance } from '@/axios';
+import { useNavigate } from 'react-router-dom';
+import AuthContext from '@/context/auth-context';
 
-// SignUpForm component with navigation
 const SignUpForm = () => {
   const navigate = useNavigate();
+  const { setAccessToken, setRefreshToken } = useContext(AuthContext);
 
-  const handleSubmit = (e) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [repeatPassword, setRepeatPassword] = useState('');
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically validate the form and maybe send data to a backend
-    // After successful signup, navigate to the ProblemEntryPage
-    navigate('/problems');
+
+    if (password !== repeatPassword) {
+      setErrorMsg("Passwords do not match.");
+      return;
+    }
+
+    if (!agreeTerms) {
+      setErrorMsg("You must agree to the Terms and Privacy Policy.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMsg('');
+
+    try {
+      const response = await axiosInstance.post('/register', {
+        name,
+        email,
+        password,
+      });
+
+      setAccessToken(response?.data?.access);
+      setRefreshToken(response?.data?.refresh);
+
+      navigate('/problems');
+    } catch (error) {
+      console.error(error);
+      if (error.response?.data?.detail) {
+        setErrorMsg(error.response.data.detail);
+      } else {
+        setErrorMsg("Registration failed. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -17,45 +60,82 @@ const SignUpForm = () => {
         <h1 className="text-3xl font-normal text-white mb-2">Hello!</h1>
         <p className="text-xl text-white">We are glad to see you :)</p>
       </div>
-      
-      {/* Form fields */}
+
+      {errorMsg && (
+        <div className="mb-4 px-4 py-2 text-sm text-white bg-red-500 rounded">
+          {errorMsg}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="block text-white text-sm mb-1">Name</label>
-            <input type="text" className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white" />
+            <input
+              type="text"
+              className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
           </div>
           <div>
-            <label className="block text-white text-sm mb-1">Email Adress</label>
-            <input type="email" className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white" />
+            <label className="block text-white text-sm mb-1">Email Address</label>
+            <input
+              type="email"
+              className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
         </div>
-        
+
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
             <label className="block text-white text-sm mb-1">Password</label>
-            <input type="password" className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white" placeholder="xxxxxxxx" />
+            <input
+              type="password"
+              className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white"
+              placeholder="xxxxxxxx"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
           </div>
           <div>
-            <label className="block text-white text-sm mb-1">Repead Password</label>
-            <input type="password" className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white" placeholder="xxxxxxxx" />
+            <label className="block text-white text-sm mb-1">Repeat Password</label>
+            <input
+              type="password"
+              className="w-full bg-transparent border border-white rounded-full px-4 py-2 text-white"
+              placeholder="xxxxxxxx"
+              value={repeatPassword}
+              onChange={(e) => setRepeatPassword(e.target.value)}
+              required
+            />
           </div>
         </div>
-        
+
         <div className="mb-6">
           <label className="flex items-center">
-            <input type="checkbox" className="form-checkbox rounded text-teal-500 border-white border transition cursor-pointer" />
-            <span className="ml-2 text-white text-sm transition cursor-pointer">
+            <input
+              type="checkbox"
+              className="form-checkbox rounded text-teal-500 border-white border transition cursor-pointer"
+              checked={agreeTerms}
+              onChange={(e) => setAgreeTerms(e.target.checked)}
+            />
+            <span className="ml-2 text-white text-sm">
               I agree <a href="#" className="underline">Terms of Service</a> and <a href="#" className="underline">Privacy Policy</a>
             </span>
           </label>
         </div>
-        
+
         <button
           type="submit"
+          disabled={isLoading}
           className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-3 px-4 rounded-full transition cursor-pointer"
         >
-          Sign Up
+          {isLoading ? 'Signing up...' : 'Sign Up'}
         </button>
       </form>
     </div>
