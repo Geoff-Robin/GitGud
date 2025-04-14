@@ -1,6 +1,4 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import ProblemEntryPage from './ProblemEntryPage';
 
 // SignUpForm component with navigation
 const SignUpForm = () => {
@@ -63,19 +61,5 @@ const SignUpForm = () => {
     </div>
   );
 };
-
-// Main App component with routing
-function App() {
-  return (
-    <Router>
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-700 to-indigo-900 p-6">
-        <Routes>
-          <Route path="/" element={<SignUpForm />} />
-          <Route path="/problems" element={<ProblemEntryPage />} />
-        </Routes>
-      </div>
-    </Router>
-  );
-}
 
 export default SignUpForm;

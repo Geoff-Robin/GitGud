@@ -1,8 +1,8 @@
 import React, { useState } from "react"; 
 import { useNavigate } from "react-router-dom"; 
-import BackgroundImage from "./BackgroundImage"; 
+import BackgroundImage from "@/components/BackgroundImage"; 
 import { AuroraBackground } from "@/components/ui/aurora-background"; 
-import Navbar from "./ui/navbar";  
+import Navbar from "../components/ui/navbar";  
 
 const LoginPage = () => {   
   console.log("LoginPage rendering");    

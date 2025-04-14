@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@/components/ui/themecotext";
+import { useTheme } from "@/context/theme-context";
 
 const Navbar = () => {
   const navigate = useNavigate();
