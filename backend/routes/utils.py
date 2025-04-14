@@ -1,16 +1,22 @@
+"""
+This module provides utility functions for the backend routes.
+
+It includes a scraper function to fetch and parse problem descriptions from LeetCode.
+"""
+
 import requests
 import json
 from bs4 import BeautifulSoup
 
-def scraper(problem_slug):
+def scraper(problem_slug: str) -> str:
     """
-    Fetches and extracts the text description of a LeetCode problem using its slug.
+    Fetch and extract the text description of a LeetCode problem using its slug.
 
-    Parameters:
-    - problem_slug (str): The slug of the LeetCode problem (e.g., 'two-sum').
+    Args:
+        problem_slug (str): The slug of the LeetCode problem (e.g., 'two-sum').
 
     Returns:
-    - str: The problem description as plain text, or an error message if the request fails.
+        str: The problem description as plain text, or an error message if the request fails.
     """
     url = 'https://leetcode.com/graphql/'
     headers = {

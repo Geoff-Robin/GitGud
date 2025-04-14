@@ -1,3 +1,9 @@
+"""
+This module defines the API routes for the backend.
+
+It includes endpoints for user authentication, chat creation, chat history retrieval, and message handling.
+"""
+
 from fastapi import APIRouter, Response, status, Request, Depends
 from routes.models import (
     AuthResModel,
@@ -34,6 +40,17 @@ logger = logging.getLogger(__name__)
     summary="Register user and return JWT tokens",
 )
 async def register(user: RegisterReqModel, response: Response, request: Request):
+    """
+    Register a new user and generate JWT tokens.
+
+    Args:
+        user (RegisterReqModel): The user registration data.
+        response (Response): The HTTP response object.
+        request (Request): The HTTP request object.
+
+    Returns:
+        AuthResModel: The access and refresh tokens for the user.
+    """
     user_data = {
         "username": user.username,
         "email": user.email,
@@ -61,6 +78,17 @@ async def register(user: RegisterReqModel, response: Response, request: Request)
     summary="Login user and return JWT Tokens",
 )
 async def login(login_data: LoginReqModel, response: Response, request: Request):
+    """
+    Authenticate a user and generate JWT tokens.
+
+    Args:
+        login_data (LoginReqModel): The user login data.
+        response (Response): The HTTP response object.
+        request (Request): The HTTP request object.
+
+    Returns:
+        AuthResModel: The access and refresh tokens for the user.
+    """
     try:
         Users = request.app.database["Users"]
         user = await Users.find_one({"email": login_data.email})
@@ -84,6 +112,16 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
 
 @router.get("/refresh", summary="Refresh JWT tokens")
 async def refresh_token(response: Response, user=Depends(get_current_user_refresh)):
+    """
+    Refresh the JWT access token using a refresh token.
+
+    Args:
+        response (Response): The HTTP response object.
+        user: The current user obtained from the refresh token.
+
+    Returns:
+        dict: The new access token.
+    """
     try:
         user_email = user["email"]
         if not user_email:
@@ -105,6 +143,18 @@ async def create_chat(
     response: Response,
     user=Depends(get_current_user),
 ):
+    """
+    Create a new chat room for a given LeetCode problem.
+
+    Args:
+        chat (CreateChatReqModel): The chat creation data.
+        request (Request): The HTTP request object.
+        response (Response): The HTTP response object.
+        user: The current user obtained from the access token.
+
+    Returns:
+        dict: A message indicating the success of the chat creation.
+    """
     try:
         problem_url = chat.problem_url
         problem_nickname = chat.problem_nickname
@@ -141,6 +191,18 @@ async def create_chat(
 async def get_chat(
     chat: ChatRoom, request: Request, response: Response, user=Depends(get_current_user)
 ):
+    """
+    Retrieve the chat history for a given LeetCode problem.
+
+    Args:
+        chat (ChatRoom): The chat room data.
+        request (Request): The HTTP request object.
+        response (Response): The HTTP response object.
+        user: The current user obtained from the access token.
+
+    Returns:
+        dict: The chat history for the specified problem.
+    """
     try:
         chat_history = await request.app.database["Chat List"].find_one(
             {
@@ -165,6 +227,18 @@ async def chat_message(
     response: Response,
     user=Depends(get_current_user),
 ):
+    """
+    Send a message in a chat room and generate a response from the chatbot.
+
+    Args:
+        chat_message (ChatMessage): The chat message data.
+        request (Request): The HTTP request object.
+        response (Response): The HTTP response object.
+        user: The current user obtained from the access token.
+
+    Returns:
+        dict: The chatbot's response and the time since the first message.
+    """
     try:
         # Insert user's message into DB with timestamp
         await request.app.database["Messages"].insert_one(
@@ -260,6 +334,18 @@ async def chat_message(
 
 @router.post("/get_chats",summary="get chat history")
 async def get_chats(chat:ChatRoom, request: Request, response: Response, user=Depends(get_current_user)):
+    """
+    Retrieve the chat history for all LeetCode problems for the current user.
+
+    Args:
+        chat (ChatRoom): The chat room data.
+        request (Request): The HTTP request object.
+        response (Response): The HTTP response object.
+        user: The current user obtained from the access token.
+
+    Returns:
+        list: A list of chat histories for the current user.
+    """
     try:
         chats = await request.app.database["Chat List"].find({"email": user["email"]}).sort("timestamp",ASCENDING).to_list(length=None)
         return chats

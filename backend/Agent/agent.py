@@ -1,3 +1,9 @@
+"""
+This module defines the ChatBot class, which handles the logic for the competitive programming assistant.
+
+It includes methods for summarizing conversations, interacting with models, and executing code.
+"""
+
 import os
 import requests
 from dotenv import load_dotenv
@@ -11,6 +17,15 @@ from Agent.prompts import SYSTEM_PROMPT, JUDGE_SYSTEM_PROMPT
 
 
 class ChatBot:
+    """
+    A chatbot for assisting with competitive programming problems.
+
+    Attributes:
+        messages (List[Dict[str, str]]): The conversation history.
+        problem (str): The problem description.
+        summary (str): A summary of the conversation.
+        level (int): The assistance level (0, 1, or 2).
+    """
     def __init__(self, messages: List[Dict[str, str]], problem: str, summary: str = "",level: int = 0):
         load_dotenv()
         self._messages = messages

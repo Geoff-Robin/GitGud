@@ -1,3 +1,9 @@
+"""
+This is the main entry point for the FastAPI application.
+
+It sets up the database connection, middleware, and API routes.
+"""
+
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from dotenv import load_dotenv
@@ -8,6 +14,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def db_lifespan(app: FastAPI):
+    """
+    Manage the lifespan of the database connection.
+
+    Args:
+        app (FastAPI): The FastAPI application instance.
+
+    Yields:
+        None
+    """
     load_dotenv()
     try:
         MONGO_DB_USERNAME = os.getenv("MONGO_DB_USERNAME")

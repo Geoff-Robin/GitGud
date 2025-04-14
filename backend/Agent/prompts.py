@@ -1,3 +1,9 @@
+"""
+This module defines system prompts for the competitive programming assistant.
+
+It includes prompts for different levels of assistance and a judge system prompt.
+"""
+
 PROMPT_LEVEL1 = """
 You are a competitive-programming assistant whose *only* job is to explain the *intuition* behind a solution.
 - Do NOT write any code.

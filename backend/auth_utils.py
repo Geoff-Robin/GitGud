@@ -1,3 +1,9 @@
+"""
+This module provides utility functions for JWT authentication and password management.
+
+It includes functions for creating and verifying tokens, hashing passwords, and retrieving the current user.
+"""
+
 import os
 from passlib.context import CryptContext
 from dotenv import load_dotenv
@@ -25,6 +31,16 @@ class TokenData(BaseModel):
 
 
 async def get_user(db, email: str):
+    """
+    Retrieve a user from the database by email.
+
+    Args:
+        db: The database connection.
+        email (str): The email of the user to retrieve.
+
+    Returns:
+        The user object if found, otherwise None.
+    """
     user = await db.Users.find_one({"email": email})
     return user
 
@@ -32,6 +48,16 @@ async def get_user(db, email: str):
 async def create_access_token(
     subject: Union[str, Any], expires_delta: int = None
 ) -> str:
+    """
+    Create a new access token.
+
+    Args:
+        subject (Union[str, Any]): The subject of the token (e.g., user email).
+        expires_delta (int, optional): The token expiration time in minutes.
+
+    Returns:
+        str: The generated JWT access token.
+    """
     if expires_delta is not None:
         expires_delta = datetime.datetime.now(datetime.timezone.utc) + expires_delta
     else:
@@ -46,6 +72,16 @@ async def create_access_token(
 async def create_refresh_token(
     subject: Union[str, Any], expires_delta: int = None
 ) -> str:
+    """
+    Create a new refresh token.
+
+    Args:
+        subject (Union[str, Any]): The subject of the token (e.g., user email).
+        expires_delta (int, optional): The token expiration time in minutes.
+
+    Returns:
+        str: The generated JWT refresh token.
+    """
     if expires_delta is not None:
         expires_delta = datetime.datetime.now(datetime.timezone.utc) + expires_delta
     else:
@@ -59,14 +95,42 @@ async def create_refresh_token(
 
 
 async def verify_password(password: str, hashed_pass: str) -> bool:
+    """
+    Verify a password against its hashed version.
+
+    Args:
+        password (str): The plain text password.
+        hashed_pass (str): The hashed password.
+
+    Returns:
+        bool: True if the password matches the hash, False otherwise.
+    """
     return password_context.verify(password, hashed_pass)
 
 
 async def get_hashed_password(password: str) -> str:
+    """
+    Hash a plain text password.
+
+    Args:
+        password (str): The plain text password.
+
+    Returns:
+        str: The hashed password.
+    """
     return password_context.hash(password)
 
 
 async def get_current_user_refresh(request: Request):
+    """
+    Retrieve the current user based on the refresh token in the request.
+
+    Args:
+        request (Request): The FastAPI request object.
+
+    Returns:
+        The user object if the token is valid and the user is found, otherwise raises an HTTPException.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -97,6 +161,16 @@ async def get_current_user_refresh(request: Request):
 async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)], request: Request
 ):
+    """
+    Retrieve the current user based on the access token in the request.
+
+    Args:
+        token (str): The JWT access token.
+        request (Request): The FastAPI request object.
+
+    Returns:
+        The user object if the token is valid and the user is found, otherwise raises an HTTPException.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",

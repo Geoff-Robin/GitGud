@@ -1,3 +1,9 @@
+"""
+This module defines custom tools for the competitive programming assistant.
+
+It includes tools for fetching problem descriptions and calculating message timestamp differences.
+"""
+
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel
 from typing import Optional, Type
@@ -17,6 +23,9 @@ LEETCODE_API = os.getenv("LEETCODE_API_URL")
 
 
 class ProblemDescriptionSearchTool(BaseTool):
+    """
+    A tool to fetch and parse the description of a competitive programming problem.
+    """
     name :  str = "getProblemDescription"
     description : str  = "use it when you need to know the description of a problem"
     args_schema: Type[BaseModel] = ProblemStatementUrl
@@ -59,4 +68,4 @@ class ProblemDescriptionSearchTool(BaseTool):
 class MessageTimeStampDifference(BaseTool):
     name : str = "getMessageTimeStampDifference"
     description : str = "use it to get difference between current user message timestamp and the first user message timestamp."
-    
+

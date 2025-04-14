@@ -1,11 +1,24 @@
+"""
+This module defines the Pydantic models used for request and response validation in the API.
+
+It includes models for user authentication, chat creation, and chat messages.
+"""
+
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+
 class AuthResModel(BaseModel):
+    """
+    Model for authentication response containing access and refresh tokens.
+    """
     ACCESS_TOKEN : str
     REFRESH_TOKEN : str 
     
 class RegisterReqModel(BaseModel):
+    """
+    Model for user registration request containing username, email, and password.
+    """
     username :str
     email :str
     password:str
@@ -21,8 +34,10 @@ class RegisterReqModel(BaseModel):
         }
     }
     
-    
 class LoginReqModel(BaseModel):
+    """
+    Model for user login request containing email and password.
+    """
     email :str
     password:str
     model_config = {
@@ -37,6 +52,9 @@ class LoginReqModel(BaseModel):
     }
     
 class CreateChatReqModel(BaseModel):
+    """
+    Model for creating a chat request containing problem URL and optional problem nickname.
+    """
     problem_url : str
     problem_nickname : Optional[str] = None
     model_config = {
@@ -51,6 +69,9 @@ class CreateChatReqModel(BaseModel):
     }
     
 class ChatRoom(BaseModel):
+    """
+    Model for a chat room containing problem URL and user email.
+    """
     problem: str
     email: str
     model_config={
@@ -65,6 +86,9 @@ class ChatRoom(BaseModel):
         }
     
 class ChatMessage(BaseModel):
+    """
+    Model for a chat message containing the message content, user email, and problem URL.
+    """
     message: str
     email: str
     problem: str
@@ -79,5 +103,5 @@ class ChatMessage(BaseModel):
                 ]
             }
         }
-    
-    
+
+
