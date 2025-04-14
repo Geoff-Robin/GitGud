@@ -21,3 +21,22 @@ class State(TypedDict):
     summary: str = Field(..., description="The summary of the conversation.")
     problem: str = Field(..., description="The leetcode problem for the conversation.")
     level : int = Field(..., description="The level of the conversation.")
+    
+class ChatMessage(BaseModel):
+    """
+    Model for a chat message containing the message content, user email, and problem URL.
+    """
+    message: str
+    email: str
+    problem: str
+    model_config={
+        "json_schema_extra":{
+            "examples" : [
+                    {
+                        "message": "Hello, how are you?",
+                        "email": "johndoe@example.com",
+                        "problem": "https://example.com/problem1",
+                    },
+                ]
+            }
+        }

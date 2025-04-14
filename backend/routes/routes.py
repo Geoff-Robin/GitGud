@@ -14,7 +14,7 @@ from routes.models import (
     ChatMessage,
 )
 from pymongo import DESCENDING,ASCENDING
-from auth_utils import (
+from backend.Auth.utils import (
     get_hashed_password,
     create_access_token,
     create_refresh_token,
@@ -25,7 +25,7 @@ from auth_utils import (
 import datetime as dt
 from datetime import datetime, timezone
 from Agent.agent import ChatBot
-from routes.utils import scraper
+from utils import scraper
 import logging
 from starlette.exceptions import HTTPException
 
