@@ -30,7 +30,7 @@ async def chat_message(
         user: The current user obtained from the access token.
 
     Returns:
-        dict: The chatbot's response and the time since the first message.
+        dict: The chatbot's response
     """
     try:
         # Insert user's message into DB with timestamp
@@ -84,7 +84,6 @@ async def chat_message(
             now = datetime.now(timezone.utc)
             diff = now - earliest_time
             time_difference_minutes = diff.total_seconds() / 60
-            print(f"⏳ Time since first message: {time_difference_minutes:.2f} minutes")
 
         # Format history for ChatBot
         formatted_history = [
@@ -117,7 +116,6 @@ async def chat_message(
 
         return {
             "message": result["response"],
-            "minutes_since_first_message": time_difference_minutes
         }
 
     except Exception as e:
