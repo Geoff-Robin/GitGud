@@ -1,10 +1,10 @@
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { ThemeProvider } from "./components/ui/themecotext";
-import Dashboard from "./components/Dashboard";
-import SignUpPage from "./components/SignUpPage";
-import LoginPage from "./components/LoginPage";
-import ProblemEntryPage from "./components/ProblemEntryPage";
+import { ThemeProvider } from "./context/theme-context";
+import Dashboard from "./pages/Dashboard";
+import SignUpPage from "./pages/SignUpPage";
+import LoginPage from "./pages/LoginPage";
+import ProblemEntryPage from "./pages/ProblemEntryPage";
 
 function App() {
   return (

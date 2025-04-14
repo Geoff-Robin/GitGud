@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ProblemEntryPage.css";
+import "../ProblemEntryPage.css";
 import Navbar from "@/components/ui/navbar";
 
 function ProblemEntryPage() {
