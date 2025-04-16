@@ -27,7 +27,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class TokenData(BaseModel):
-    email: str | None = None
+    _id: str | None = None
 
 
 async def get_user(db, email: str):
@@ -76,7 +76,7 @@ async def create_refresh_token(
     Create a new refresh token.
 
     Args:
-        subject (Union[str, Any]): The subject of the token (e.g., user email).
+        subject (Union[str, Any]): The subject of the token (e.g., Object ID).
         expires_delta (int, optional): The token expiration time in minutes.
 
     Returns:
@@ -144,11 +144,11 @@ async def get_current_user_refresh(request: Request):
             raise credentials_exception
         
         payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
-        email = payload.get("sub")
-        if email is None:
+        _id = payload.get("sub")
+        if _id is None:
             raise credentials_exception
         
-        token_data = TokenData(email=email)
+        token_data = TokenData(_id = _id)
     except (InvalidTokenError, ValueError):
         raise credentials_exception
     
@@ -179,11 +179,10 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
         print("decoded payload", payload)
-        email = payload.get("sub")
-        print("email: ", email)
-        if email is None:
+        _id = payload.get("sub")
+        if _id is None:
             raise credentials_exception
-        token_data = TokenData(email=email)
+        token_data = TokenData(_id=_id)
     except InvalidTokenError:
         raise credentials_exception
     user = await get_user(request.app.database, email=token_data.email)
