@@ -7,6 +7,8 @@ import SignUpPage from "./components/SignUpPage";
 import LoginPage from "./components/LoginPage";
 import ProblemEntryPage from "./pages/ProblemEntryPage";
 import ChatPage from "./pages/ChatPage";
+import ProblemEntryPage from "./pages/ProblemEntryPage";
+import ChatPage from "./pages/ChatPage";
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/problems" element={<ProblemEntryPage />} />
+          <Route path="/chat" element={<ChatPage />} /> 
           <Route path="/chat" element={<ChatPage />} /> 
         </Routes>
       </BrowserRouter>
