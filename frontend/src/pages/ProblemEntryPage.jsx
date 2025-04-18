@@ -1,217 +1,235 @@
-import React, { useState } from "react";
-import "../ProblemEntryPage.css";
-import Navbar from "@/components/ui/navbar";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '@/components/ui/navbar'; // Import your existing Navbar component
+import '../ProblemEntryPage.css';
 
-function ProblemEntryPage() {
-  // Track which forms are open
-  const [openForms, setOpenForms] = useState({
-    form1: false,
-    form2: false,
-    form3: false,
-    form4: false,
-    form5: false
-  });
-  
-  // Form input values
-  const [formData, setFormData] = useState({
-    form1: { topic: "", url: "" },
-    form2: { topic: "", url: "" },
-    form3: { topic: "", url: "" },
-    form4: { topic: "", url: "" },
-    form5: { topic: "", url: "" }
-  });
-
-  // Pagination state
+const ProblemEntryPage = () => {
+  const GRID_SIZE = 9; // 3x3 grid
+  const navigate = useNavigate();
+  const [currentPosition, setCurrentPosition] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [urlInput, setUrlInput] = useState('');
+  const [gridCells, setGridCells] = useState(Array(GRID_SIZE).fill(null));
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = 6; // Total number of pages
-  
-  // Toggle form visibility
-  const toggleForm = (formId) => {
-    // Close any open forms
-    const updatedForms = Object.keys(openForms).reduce((acc, key) => {
-      acc[key] = key === formId ? !openForms[formId] : false;
-      return acc;
-    }, {});
-    
-    setOpenForms(updatedForms);
-  };
-  
-  // Handle input changes
-  const handleInputChange = (formId, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [formId]: {
-        ...prev[formId],
-        [field]: value
-      }
-    }));
-  };
-  
-  // Handle form submission
-  const handleSubmit = (formId) => {
-    const data = formData[formId];
-    console.log(`Form ${formId} submitted on page ${currentPage}:`, data);
-    
-    // Reset form and close it
-    setFormData(prev => ({
-      ...prev,
-      [formId]: { topic: "", url: "" }
-    }));
-    
-    toggleForm(formId);
-    
-    // In a real app, you would send this data to your backend
-    alert(`Problem submitted on page ${currentPage}!\nTopic: ${data.topic}\nURL: ${data.url}`);
+  const totalPages = 6; // Updated to 6 pages
+
+  // Open the URL input modal
+  const openUrlModal = () => {
+    setIsModalOpen(true);
   };
 
-  // Handle page navigation
-  const goToPage = (pageNumber) => {
-    // Close any open forms when changing pages
-    setOpenForms({
-      form1: false,
-      form2: false,
-      form3: false,
-      form4: false,
-      form5: false
-    });
-    
+  // Close the URL input modal
+  const closeUrlModal = () => {
+    setIsModalOpen(false);
+    setUrlInput('');
+  };
+
+  // Handle URL submission
+  const submitUrl = () => {
+    if (urlInput.trim()) {
+      // Update the grid cells array
+      const newGridCells = [...gridCells];
+      newGridCells[currentPosition] = urlInput.trim();
+      setGridCells(newGridCells);
+      
+      // Move to the next position
+      setCurrentPosition(prevPosition => prevPosition + 1);
+      
+      // Close the modal
+      closeUrlModal();
+      
+      // Navigate to ChatPage
+      navigate('/chat', { state: { url: urlInput.trim() } });
+    }
+  };
+
+  // Handle keyboard events
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      submitUrl();
+    }
+  };
+
+  // Handle pagination
+  const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    // Reset grid for demo purposes
+    setGridCells(Array(GRID_SIZE).fill(null));
+    setCurrentPosition(0);
   };
 
-  // Go to next page
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      goToPage(currentPage + 1);
-    }
-  };
-
-  // Go to previous page
-  const prevPage = () => {
+  // Navigate to previous page
+  const goToPrevPage = () => {
     if (currentPage > 1) {
-      goToPage(currentPage - 1);
+      handlePageChange(currentPage - 1);
     }
   };
-  
-  // Find if any form is currently open
-  const activeForm = Object.keys(openForms).find(key => openForms[key]) || null;
-  
-  // Generate pagination numbers
+
+  // Navigate to next page
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      handlePageChange(currentPage + 1);
+    }
+  };
+
+  // Function to render pagination numbers with ellipsis for large page counts
   const renderPaginationNumbers = () => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(
-        <button
-          key={i}
-          onClick={() => goToPage(i)}
-          className={`page-number ${currentPage === i ? 'active' : ''}`}
+    const paginationItems = [];
+    
+    // Always show first page
+    paginationItems.push(
+      <button 
+        key={1} 
+        className={`url-grid-pagination-number ${currentPage === 1 ? 'active' : ''}`}
+        onClick={() => handlePageChange(1)}
+      >
+        1
+      </button>
+    );
+    
+    // Logic for showing ellipsis and surrounding pages
+    if (totalPages > 5) {
+      if (currentPage > 3) {
+        paginationItems.push(
+          <span key="ellipsis-1" className="url-grid-pagination-ellipsis">...</span>
+        );
+      }
+      
+      // Show current page and surrounding pages
+      const startPage = Math.max(2, currentPage - 1);
+      const endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      for (let i = startPage; i <= endPage; i++) {
+        if (i !== 1 && i !== totalPages) {
+          paginationItems.push(
+            <button 
+              key={i} 
+              className={`url-grid-pagination-number ${currentPage === i ? 'active' : ''}`}
+              onClick={() => handlePageChange(i)}
+            >
+              {i}
+            </button>
+          );
+        }
+      }
+      
+      if (currentPage < totalPages - 2) {
+        paginationItems.push(
+          <span key="ellipsis-2" className="url-grid-pagination-ellipsis">...</span>
+        );
+      }
+    } else {
+      // Show all pages if there aren't many
+      for (let i = 2; i < totalPages; i++) {
+        paginationItems.push(
+          <button 
+            key={i} 
+            className={`url-grid-pagination-number ${currentPage === i ? 'active' : ''}`}
+            onClick={() => handlePageChange(i)}
+          >
+            {i}
+          </button>
+        );
+      }
+    }
+    
+    // Always show last page
+    if (totalPages > 1) {
+      paginationItems.push(
+        <button 
+          key={totalPages} 
+          className={`url-grid-pagination-number ${currentPage === totalPages ? 'active' : ''}`}
+          onClick={() => handlePageChange(totalPages)}
         >
-          {i}
+          {totalPages}
         </button>
       );
     }
-    return pages;
+    
+    return paginationItems;
   };
-  
+
   return (
-    <>
+    <div className="url-grid-page">
       <Navbar />
-      <div className="problem-entry-container">
-        <h1 className="page-title">Problem Entry Page {currentPage}</h1>
-        
-        {/* Horizontal buttons row */}
-        <div className="buttons-row">
-          {[1, 2, 3, 4, 5].map(num => {
-            const formId = `form${num}`;
-            return (
-              <button
-                key={formId}
-                onClick={() => toggleForm(formId)}
-                className={`add-button ${openForms[formId] ? 'active' : ''}`}
-              >
-                <span className="plus-icon">+</span>
-                Add Problem {num}
-              </button>
-            );
-          })}
-        </div>
-        
-        {/* Form display area */}
-        {activeForm && (
-          <div className="form-container">
-            <div className="form-header">
-              <h3 className="form-title">
-                Add Problem {activeForm.replace("form", "")} (Page {currentPage})
-              </h3>
-              <button 
-                onClick={() => toggleForm(activeForm)} 
-                className="close-button"
-              >
-                ×
-              </button>
+      
+      <div className="url-grid-wrapper">
+        <div className="url-grid-container">
+          <div className="url-grid-header">
+            <h2>Enter the Project URL's</h2>
+            <div className="url-grid-page-indicator">Page {currentPage} of {totalPages}</div>
+          </div>
+          
+          <div className="url-grid">
+            {Array(GRID_SIZE).fill(null).map((_, index) => (
+              <div className="url-grid-cell" key={index}>
+                {index === currentPosition && currentPosition < GRID_SIZE ? (
+                  <button className="url-grid-add-button" onClick={openUrlModal}>
+                    <span className="plus-icon">+</span>
+                  </button>
+                ) : gridCells[index] ? (
+                  <div className="url-grid-url-display">
+                    <div className="url-grid-url-text">{gridCells[index]}</div>
+                    <div className="url-grid-url-favicon">
+                      <div className="favicon-placeholder"></div>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+          
+          {/* Enhanced Pagination */}
+          <div className="url-grid-pagination">
+            <button 
+              className={`url-grid-pagination-nav ${currentPage === 1 ? 'disabled' : ''}`}
+              onClick={goToPrevPage}
+              disabled={currentPage === 1}
+            >
+              <span className="nav-icon">←</span> Prev
+            </button>
+            
+            <div className="url-grid-pagination-numbers">
+              {renderPaginationNumbers()}
             </div>
             
-            <div className="form-fields">
-              <div className="form-group">
-                <label htmlFor={`${activeForm}-topic`}>
-                  Problem Topic
-                </label>
-                <input
-                  id={`${activeForm}-topic`}
-                  type="text"
-                  value={formData[activeForm].topic}
-                  onChange={(e) => handleInputChange(activeForm, "topic", e.target.value)}
-                  placeholder="Enter problem topic"
-                />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor={`${activeForm}-url`}>
-                  Problem URL
-                </label>
-                <input
-                  id={`${activeForm}-url`}
-                  type="text"
-                  value={formData[activeForm].url}
-                  onChange={(e) => handleInputChange(activeForm, "url", e.target.value)}
-                  placeholder="Enter problem URL"
-                />
-              </div>
-              
-              <button
-                onClick={() => handleSubmit(activeForm)}
-                className="submit-button"
-              >
-                Submit
-              </button>
-            </div>
+            <button 
+              className={`url-grid-pagination-nav ${currentPage === totalPages ? 'disabled' : ''}`}
+              onClick={goToNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next <span className="nav-icon">→</span>
+            </button>
           </div>
-        )}
-        
-        {/* Pagination controls */}
-        <div className="pagination-container">
-          <button 
-            onClick={prevPage} 
-            className="pagination-button"
-            disabled={currentPage === 1}
-          >
-            &laquo; Previous
-          </button>
-          
-          <div className="pagination-numbers">
-            {renderPaginationNumbers()}
-          </div>
-          
-          <button 
-            onClick={nextPage} 
-            className="pagination-button"
-            disabled={currentPage === totalPages}
-          >
-            Next &raquo;
-          </button>
         </div>
       </div>
-    </>
+      
+      {isModalOpen && (
+        <div className="url-grid-modal" onClick={(e) => {
+          if (e.target.className === 'url-grid-modal') closeUrlModal();
+        }}>
+          <div className="url-grid-modal-content">
+            <h3>Add Project URL</h3>
+            <div className="url-grid-form-group">
+              <input 
+                type="url" 
+                placeholder="Enter project URL" 
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                autoFocus
+                required 
+              />
+            </div>
+            <div className="url-grid-buttons">
+              <button className="url-grid-btn url-grid-btn-cancel" onClick={closeUrlModal}>Cancel</button>
+              <button className="url-grid-btn url-grid-btn-submit" onClick={submitUrl}>Submit</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
-}
+};
 
 export default ProblemEntryPage;

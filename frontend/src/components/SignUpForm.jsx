@@ -1,7 +1,6 @@
-import React, { useState, useContext } from 'react';
-import { axiosInstance } from '@/axios';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '@/context/auth-context';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+
 
 const SignUpForm = () => {
   const navigate = useNavigate();
