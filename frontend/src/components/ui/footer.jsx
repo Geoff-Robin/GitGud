@@ -11,7 +11,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Company Info */}
           <div className="col-span-1">
-            <h3 className="text-xl font-bold mb-4">CodeCompete</h3>
+            <h3 className="text-xl font-bold mb-4">GitGud</h3>
             <p className="text-gray-400 mb-4">
               A guided competitive coding platform to enhance your programming skills
               through challenges, tutorials, and competitions.
@@ -58,7 +58,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <div className="text-gray-400 text-sm mb-4 md:mb-0">
-            © {currentYear} CodeCompete. All rights reserved.
+            © {currentYear} GitGud. All rights reserved.
           </div>
           <div className="flex space-x-6">
             <a href="/terms" className="text-gray-400 hover:text-white text-sm">Terms of Service</a>
