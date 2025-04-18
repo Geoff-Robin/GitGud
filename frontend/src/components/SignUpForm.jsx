@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import ProblemEntryPage from './ProblemEntryPage';
+
+import ProblemEntryPage from "../pages/ProblemEntryPage";
+
 
 // SignUpForm component with navigation
 const SignUpForm = () => {

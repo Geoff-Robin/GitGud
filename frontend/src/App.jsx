@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./components/ui/themecotext";
 
 import Dashboard from "./pages/Dashboard";
-import SignUpPage from "./pages/SignUpPage";
+import SignUpPage from "./components/SignUpPage";
 import LoginPage from "./components/LoginPage";
 import ProblemEntryPage from "./pages/ProblemEntryPage";
 import ChatPage from "./pages/ChatPage";

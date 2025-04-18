@@ -1,5 +1,5 @@
 import React from 'react';
-import BackgroundImage from '../components/BackgroundImage';
+import BackgroundImage from './BackgroundImage';
 import SignUpForm from './SignUpForm';
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import Navbar from './ui/navbar';
