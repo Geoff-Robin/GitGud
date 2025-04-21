@@ -5,7 +5,18 @@ class AuthResModel(BaseModel):
     Model for authentication response containing access and refresh tokens.
     """
     ACCESS_TOKEN : str
-    REFRESH_TOKEN : str 
+    REFRESH_TOKEN : str
+    
+    model_config = {
+        "json_schema_extra":{
+            "examples" : [
+                {
+                    "REFRESH_TOKEN" : "dsgnksdnbngq",
+                    "ACCESS_TOKEN" :"angknjbknbebnqebn"
+                }
+            ]
+        }
+    }
     
 class RegisterReqModel(BaseModel):
     """

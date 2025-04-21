@@ -38,11 +38,11 @@ class ChatBot:
         assert self._API_KEY, "Missing GROQ_API_KEY in .env"
         assert self._EXECUTE_URL, "Missing CODE_RUNNER_API_URL in .env"
 
-        self._hot_model = ChatGroq(
-            model="mistral-saba-24b", temperature=0.6, api_key=self._API_KEY
-        )
         self._cold_model = ChatGroq(
             model="mistral-saba-24b", temperature=0.3, api_key=self._API_KEY
+        )
+        self._hot_model = ChatGroq(
+            model="mistral-saba-24b", temperature=1, api_key=self._API_KEY
         )
         self._summarizer = ChatGroq(
             model="mistral-saba-24b", temperature=0.5, api_key=self._API_KEY
@@ -72,7 +72,7 @@ class ChatBot:
             "content": SYSTEM_PROMPT[self._level] + "\n\nProblem:\n" + self._problem,
         }
         msgs = [sys_msg] + state["messages"]
-        model = self._cold_model.bind_tools([self._search_tool])
+        model = self._hot_model.bind_tools([self._search_tool])
         ai_msg = model.invoke(msgs)
         state["messages"].append({"role": "assistant", "content": ai_msg.content})
         return state
@@ -80,7 +80,7 @@ class ChatBot:
     def try_running(self, state: Dict[str, Any]) -> Dict[str, Any]:
         judge_msg = {"role": "system", "content": JUDGE_SYSTEM_PROMPT}
         msgs = [judge_msg] + state["messages"]
-        extractor = self._hot_model.bind_tools([ExtractCode, NoCode])
+        extractor = self._cold_model.bind_tools([ExtractCode, NoCode])
         er = extractor.invoke(msgs)
         if not getattr(er, "tool_calls", []):
             return state

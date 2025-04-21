@@ -9,6 +9,7 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 from typing import Union, Any, Annotated
 from jose import jwt
+from bson import ObjectId
 from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
@@ -27,7 +28,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class TokenData(BaseModel):
-    _id: str | None = None
+    _id: ObjectId | None = None
 
 
 async def get_user(db, email: str):
@@ -43,6 +44,25 @@ async def get_user(db, email: str):
     """
     user = await db.Users.find_one({"email": email})
     return user
+
+async def get_user_by_id(db,_id : ObjectId):
+    """
+    Retrieve a user from the database by email.
+
+    Args:
+        db: The database connection.
+        email (str): The email of the user to retrieve.
+
+    Returns:
+        The user object if found, otherwise None.
+    """
+    try:
+        user = await db.Users.find_one({"_id":_id})
+        print("User found:", user)
+        return user
+    except Exception as e:
+        print("Error in get_user:", e)
+        return None
 
 
 async def create_access_token(
@@ -179,13 +199,13 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
         print("decoded payload", payload)
-        _id = payload.get("sub")
+        _id = ObjectId(payload.get("sub"))
+        print(_id)
         if _id is None:
             raise credentials_exception
-        token_data = TokenData(_id=_id)
     except InvalidTokenError:
         raise credentials_exception
-    user = await get_user(request.app.database, email=token_data.email)
+    user = await get_user_by_id(request.app.database, _id=_id)
     if user is None:
         raise credentials_exception
     return user

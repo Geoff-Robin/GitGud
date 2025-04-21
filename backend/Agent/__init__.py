@@ -100,15 +100,15 @@ async def chat_message(
 
         summary = chat.get("summary", "")
         problem = chat.get("problem_statement", "")
-        if time_difference_minutes <= 20:
+        if time_difference_minutes <= 5:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem
             )
-        elif time_difference_minutes > 20 and time_difference_minutes <= 40:
+        elif time_difference_minutes > 5 and time_difference_minutes <= 10:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=1
             )
-        elif time_difference_minutes > 40:
+        elif time_difference_minutes > 10:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=2
             )
