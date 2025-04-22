@@ -13,7 +13,7 @@ from langgraph.graph import StateGraph, START, END
 from langgraph_reflection import create_reflection_graph
 from langchain_community.tools import DuckDuckGoSearchResults
 from Agent.models import NoCode, ExtractCode, State
-from Agent.prompts import SYSTEM_PROMPT, JUDGE_SYSTEM_PROMPT
+from Agent.prompts import SYSTEM_PROMPT, JUDGE_SYSTEM_PROMPT,SUMMARIZER_PROMPT
 
 
 class ChatBot:
@@ -34,18 +34,18 @@ class ChatBot:
         self._level = level
         self._API_KEY = os.getenv("GROQ_API_KEY")
         self._EXECUTE_URL = os.getenv("CODE_RUNNER_API_URL")
-
+        print(level)
         assert self._API_KEY, "Missing GROQ_API_KEY in .env"
         assert self._EXECUTE_URL, "Missing CODE_RUNNER_API_URL in .env"
 
         self._cold_model = ChatGroq(
-            model="mistral-saba-24b", temperature=0.3, api_key=self._API_KEY
+            model="qwen-qwq-32b", temperature=0.3, api_key=self._API_KEY
         )
         self._hot_model = ChatGroq(
-            model="mistral-saba-24b", temperature=1, api_key=self._API_KEY
+            model="qwen-qwq-32b", temperature=0.5, api_key=self._API_KEY
         )
         self._summarizer = ChatGroq(
-            model="mistral-saba-24b", temperature=0.5, api_key=self._API_KEY
+            model="qwen-qwq-32b", temperature=0.5, api_key=self._API_KEY
         )
         self._search_tool = DuckDuckGoSearchResults(max_results=5)
 
@@ -53,23 +53,17 @@ class ChatBot:
         return "summarize" if len(state["messages"]) > 5 else "call_model"
 
     def summarize(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        if state["summary"] != "":
-            prompt = (
-                f"Existing summary:\n{state['summary']}\n\n"
-                "Update it based on the following conversation:"
-            )
-        else:
-            prompt = "Summarize the following conversation:"
+        prompt = SUMMARIZER_PROMPT
         sys_msg = {"role": "system", "content": prompt}
         response = self._summarizer.invoke([sys_msg] + state["messages"])
         state["summary"] = response.content
-        state["messages"] = state["messages"][-5:]
+        state["messages"] = state["messages"][-3:]
         return state
 
     def call_model(self, state: Dict[str, Any]) -> Dict[str, Any]:
         sys_msg = {
             "role": "system",
-            "content": SYSTEM_PROMPT[self._level] + "\n\nProblem:\n" + self._problem,
+            "content": SYSTEM_PROMPT[self._level] + "\n\nProblem:\n" + self._problem+ "Summarized conversation given by Summary Bot: " + state["summary"]
         }
         msgs = [sys_msg] + state["messages"]
         model = self._hot_model.bind_tools([self._search_tool])
@@ -120,15 +114,45 @@ class ChatBot:
         )
         return create_reflection_graph(agent_graph, judge_graph).compile()
 
-    def chat(self) -> Dict[str, Any]:
-        graph = self.create_reflection()
-        state = {
-            "messages": [{"role": "system", "content": JUDGE_SYSTEM_PROMPT}],
-            "summary": self._summary,
-        }
-        state["messages"] = self._messages
-        result = graph.invoke(state)
-        return {
-            "response": result["messages"][-1].content,
-            "summary": result["summary"],
-        }
+    def create_agent(self):
+        agent_graph = (
+            StateGraph(State)
+            .add_node(self.summarize, "summarize")
+            .add_node(self.call_model, "call_model")
+            .add_conditional_edges(START, self.should_run)
+            .add_edge("summarize", "call_model")
+            .add_edge("call_model", END)
+            .compile()
+        )
+        return agent_graph
+    def chat(self, message: str) -> Dict[str, Any]:
+        result = None
+        self._messages.append({
+                "role" : "user",
+                "content" : message
+            })
+        if self._level == 2:
+            graph = self.create_reflection()
+            state = {
+                "messages": self._messages,
+                "summary": self._summary,
+            }
+            result = graph.invoke(state)
+            print(result)
+            return {
+                "response": result["messages"][-1].content,
+                "summary": result["summary"],
+            }
+        else:
+            graph = self.create_agent()
+            graph = self.create_reflection()
+            state = {
+                "messages": self._messages,
+                "summary": self._summary,
+            }
+            result = graph.invoke(state)
+            print(result)
+            return {
+                "response": result["messages"][-1].content,
+                "summary": result["summary"],
+            }

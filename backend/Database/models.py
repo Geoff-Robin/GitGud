@@ -18,20 +18,3 @@ class CreateChatReqModel(BaseModel):
             ]
         }
     }
-    
-class ChatRoom(BaseModel):
-    """
-    Model for a chat room containing problem URL and user email.
-    """
-    problem: str
-    email: str
-    model_config={
-        "json_schema_extra":{
-            "examples" : [
-                    {
-                        "problem": "https://example.com/problem1",
-                        "email": "johndoe@example.com",
-                    },
-                ]
-            }
-        }

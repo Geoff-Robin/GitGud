@@ -6,6 +6,7 @@ from pymongo import DESCENDING, ASCENDING
 from Agent.models import ChatMessage
 from datetime import datetime, timezone
 import logging
+from bson import ObjectId
 from starlette.exceptions import HTTPException
 
 agent_router = APIRouter()
@@ -17,6 +18,7 @@ logger = logging.getLogger(__name__)
 @agent_router.post("/chat_message", summary="Send a message in a chat room")
 async def chat_message(
     chat_message: ChatMessage,
+    chat_id: str,
     request: Request,
     response: Response,
     user=Depends(get_current_user),
@@ -34,22 +36,12 @@ async def chat_message(
         dict: The chatbot's response
     """
     try:
-        # Insert user's message into DB with timestamp
-        await request.app.database["Messages"].insert_one(
-            {
-                "problem": chat_message.problem,
-                "email": user["email"],
-                "role": "user",
-                "message": chat_message.message,
-                "timestamp": dt.datetime.now(timezone.utc),
-            }
-        )
 
         # Fetch chat metadata
         chat = await request.app.database["Chat List"].find_one(
             {
-                "problem": chat_message.problem,
-                "email": user["email"],
+                "_id": ObjectId(chat_id),
+                "user_id": ObjectId(user["_id"]),
             }
         )
         if not chat:
@@ -61,11 +53,11 @@ async def chat_message(
             await request.app.database["Messages"]
             .find(
                 {
-                    "problem": chat_message.problem,
-                    "email": user["email"],
+                    "chat_id": ObjectId(chat_id),
+                    "user_id": ObjectId(user["_id"]),
                 }
             )
-            .sort("timestamp", DESCENDING)
+            .sort("timestamp", ASCENDING)
             .to_list(length=None)
         )
 
@@ -76,8 +68,8 @@ async def chat_message(
         # 🕒 Get time difference in minutes from earliest message
         earliest_message = await request.app.database["Messages"].find_one(
             {
-                "problem": chat_message.problem,
-                "email": user["email"],
+                "chat_id": ObjectId(chat_id),
+                "user_id": ObjectId(user["_id"]),
             },
             sort=[("timestamp", ASCENDING)],
         )
@@ -91,7 +83,6 @@ async def chat_message(
             diff = now - earliest_time
             time_difference_minutes = diff.total_seconds() / 60
 
-        # Format history for ChatBot
         formatted_history = [
             {"role": m["role"], "content": m["message"]}
             for m in chat_history
@@ -100,31 +91,41 @@ async def chat_message(
 
         summary = chat.get("summary", "")
         problem = chat.get("problem_statement", "")
-        if time_difference_minutes <= 5:
+        if time_difference_minutes <= 20:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem
             )
-        elif time_difference_minutes > 5 and time_difference_minutes <= 10:
+        elif time_difference_minutes > 20 and time_difference_minutes <= 30:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=1
             )
-        elif time_difference_minutes > 10:
+        elif time_difference_minutes > 30:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=2
             )
-        result = chatbot.chat()
+        result = chatbot.chat(message=chat_message.message)
+        
+        await request.app.database["Messages"].insert_one(
+            {
+                "chat_id": ObjectId(chat_id),
+                "user_id": ObjectId(user["_id"]),
+                "role": "user",
+                "message": chat_message.message,
+                "timestamp": dt.datetime.now(timezone.utc),
+            }
+        )
 
         # Update summary
         await request.app.database["Chat List"].update_one(
-            {"problem": chat_message.problem, "email": user["email"]},
+            {"_id": chat_id, "email": user["email"]},
             {"$set": {"summary": result["summary"]}},
         )
 
         # Insert bot response
         await request.app.database["Messages"].insert_one(
             {
-                "problem": chat_message.problem,
-                "email": user["email"],
+                "chat_id": ObjectId(chat_id),
+                "user_id": ObjectId(user["_id"]),
                 "role": "assistant",
                 "message": result["response"],
                 "timestamp": dt.datetime.now(timezone.utc),

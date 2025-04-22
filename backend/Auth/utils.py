@@ -156,23 +156,20 @@ async def get_current_user_refresh(request: Request):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    
+    _id = None
     try:
         body = await request.json()
         token = body.get("refresh_token")
         if not token:
             raise credentials_exception
-        
         payload = jwt.decode(token, JWT_REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
         _id = payload.get("sub")
         if _id is None:
             raise credentials_exception
-        
-        token_data = TokenData(_id = _id)
     except (InvalidTokenError, ValueError):
         raise credentials_exception
     
-    user = await get_user(request.app.database, email=token_data.email)
+    user = await get_user_by_id(request.app.database, ObjectId(_id))
     if user is None:
         raise credentials_exception
     
