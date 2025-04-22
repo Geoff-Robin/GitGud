@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-color: #121212;
+  font-family: Arial, sans-serif;
 }
 
 .url-grid-wrapper {
@@ -70,6 +72,7 @@
   min-height: 140px;
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.03);
+  cursor: pointer;
 }
 
 .url-grid-cell:hover {
@@ -141,6 +144,14 @@
   color: #f0f0f0;
   max-width: 100%;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 5px;
+}
+
+.url-grid-problem-name {
+  font-weight: bold;
+  font-size: 16px;
+  margin-bottom: 5px;
+  color: #fff;
 }
 
 /* Enhanced Pagination styles */
@@ -254,12 +265,12 @@
 
 @keyframes modalFadeIn {
   from {
-      opacity: 0;
-      transform: translateY(-20px);
+    opacity: 0;
+    transform: translateY(-20px);
   }
   to {
-      opacity: 1;
-      transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -287,6 +298,7 @@
   box-sizing: border-box;
   color: #fff;
   transition: all 0.3s ease;
+  margin-bottom: 10px;
 }
 
 .url-grid-form-group input:focus {
@@ -346,85 +358,85 @@
 /* Responsive adjustments */
 @media (max-width: 900px) {
   .url-grid-container {
-      padding: 20px;
+    padding: 20px;
   }
   
   .url-grid {
-      gap: 15px;
+    gap: 15px;
   }
   
   .url-grid-add-button {
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
   }
   
   .url-grid-header h2 {
-      font-size: 20px;
+    font-size: 20px;
   }
 }
 
 @media (max-width: 768px) {
   .url-grid-cell {
-      min-height: 120px;
+    min-height: 120px;
   }
   
   .url-grid-pagination-number {
-      width: 32px;
-      height: 32px;
-      margin: 0 3px;
+    width: 32px;
+    height: 32px;
+    margin: 0 3px;
   }
   
   .url-grid-pagination-nav {
-      padding: 7px 14px;
-      font-size: 14px;
+    padding: 7px 14px;
+    font-size: 14px;
   }
   
   .url-grid-modal-content {
-      padding: 25px;
+    padding: 25px;
   }
   
   .url-grid-modal-content h3 {
-      font-size: 20px;
+    font-size: 20px;
   }
 }
 
 @media (max-width: 500px) {
   .url-grid {
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(5, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, 1fr);
   }
   
   .url-grid-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
   }
   
   .url-grid-page-indicator {
-      align-self: flex-end;
+    align-self: flex-end;
   }
   
   .url-grid-pagination {
-      flex-wrap: wrap;
-      padding: 10px;
+    flex-wrap: wrap;
+    padding: 10px;
   }
   
   .url-grid-pagination-numbers {
-      order: 3;
-      width: 100%;
-      margin-top: 10px;
-      justify-content: center;
+    order: 3;
+    width: 100%;
+    margin-top: 10px;
+    justify-content: center;
   }
   
   .url-grid-pagination-number {
-      width: 28px;
-      height: 28px;
-      font-size: 12px;
-      margin: 0 2px;
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+    margin: 0 2px;
   }
   
   .url-grid-btn {
-      padding: 10px 16px;
+    padding: 10px 16px;
   }
 }

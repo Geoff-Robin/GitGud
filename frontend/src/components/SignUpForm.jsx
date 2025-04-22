@@ -37,10 +37,10 @@ const SignUpForm = () => {
         password,
       });
 
-      setAccessToken(response?.data?.access);
-      setRefreshToken(response?.data?.refresh);
+      setAccessToken(response?.data?.ACCESS_TOKEN);
+      setRefreshToken(response?.data?.REFRESH_TOKEN);
 
-      navigate('/problems');
+      navigate('/home');
     } catch (error) {
       console.error(error);
       if (error.response?.data?.detail) {

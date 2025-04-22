@@ -1,21 +1,31 @@
-import React, { useState } from "react"; 
+import React, { useContext, useState } from "react"; 
 import { useNavigate } from "react-router-dom"; 
 import BackgroundImage from "@/components/BackgroundImage"; 
 import { AuroraBackground } from "@/components/ui/aurora-background"; 
+import { axiosInstance } from "@/axios";
 import Navbar from "../components/ui/navbar";  
+import { AuthContext } from "@/context/auth-context"
 
 const LoginPage = () => {   
   console.log("LoginPage rendering");    
   const [email, setEmail] = useState("");   
   const [password, setPassword] = useState("");   
   const navigate = useNavigate();    
-  
-  const handleSubmit = (e) => {     
-    e.preventDefault();     
-    console.log("Login attempt with:", { email, password });
-    
-    // Navigate to ProblemEntryPage after login attempt
-    navigate('/problems');
+  const {setAccessToken,setRefreshToken} = useContext(AuthContext);
+  const handleSubmit = async(e) => {     
+    e.preventDefault();  
+    try{   
+      const response = await axiosInstance.post('/login',{
+        email,
+        password
+      });
+      setAccessToken(response?.data?.ACCESS_TOKEN);
+      setRefreshToken(response?.data?.REFRESH_TOKEN);
+      navigate('/home');
+    }
+    catch(error){
+      console.error(error)
+    }
   };    
   
   return (     
