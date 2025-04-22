@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment directories
+env/
+venv/
+.venv/
+
+# Environment variables and credentials
+.env
+*.env
+
+# Git and version control
+.git/
+.gitignore
+.gitattributes
+
+# Docker-related files
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.override.yml
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing and coverage
+.coverage
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+tests/
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.old
+*.orig
+
+# Miscellaneous
+*.db
+*.sqlite3
+*.sqlite
