@@ -1,57 +1,93 @@
+# Git
+.git
+.gitignore
+
+# CI
+.codeclimate.yml
+.travis.yml
+.taskcluster.yml
+
+# Docker
+docker-compose.yml
+.docker
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
 *.py[cod]
-*.pyo
-*.pyd
+*/*.py[cod]
+*/*/*.py[cod]
+*/*/*/*.py[cod]
 
-# Virtual environment directories
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
 env/
-venv/
-.venv/
-
-# Environment variables and credentials
-.env
-*.env
-
-# Git and version control
-.git/
-.gitignore
-.gitattributes
-
-# Docker-related files
-Dockerfile
-.dockerignore
-docker-compose.yml
-docker-compose.override.yml
-
-# Build artifacts
 build/
+develop-eggs/
 dist/
+downloads/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
 *.egg-info/
+.installed.cfg
 *.egg
 
-# Testing and coverage
-.coverage
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
 htmlcov/
 .tox/
-.nox/
-.pytest_cache/
-tests/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
 
-# IDE and editor settings
-.idea/
-.vscode/
-*.swp
-*.swo
+# Translations
+*.mo
+*.pot
 
-# Logs and temporary files
+# Django stuff:
 *.log
-*.tmp
-*.bak
-*.old
-*.orig
 
-# Miscellaneous
-*.db
-*.sqlite3
-*.sqlite
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Virtual environment
+.env/
+.venv/
+venv/
+
+# PyCharm
+.idea
+
+# Python mode for VIM
+.ropeproject
+*/.ropeproject
+*/*/.ropeproject
+*/*/*/.ropeproject
+
+# Vim swap files
+*.swp
+*/*.swp
+*/*/*.swp
+*/*/*/*.swp

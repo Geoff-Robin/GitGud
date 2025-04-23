@@ -1,13 +1,10 @@
 # Use the official Python 3.13.1 slim image as the base
 FROM python:3.13.1-slim
 
-# Set environment variables
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    PIP_NO_CACHE_DIR=1
+
 
 # Set the working directory in the container
-WORKDIR /app
+WORKDIR /backend
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -33,4 +30,5 @@ COPY . .
 EXPOSE 8000
 
 # Command to run the application using Uvicorn
-CMD ["python", "main.py"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+

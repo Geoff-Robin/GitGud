@@ -44,8 +44,10 @@ async def db_lifespan(app: FastAPI):
 
     app.mongodb_client.close()
 
-
 app: FastAPI = FastAPI(lifespan=db_lifespan,debug=True)
+app.include_router(router=auth_router)
+app.include_router(router=db_router)
+app.include_router(router=agent_router)
 
 app.add_middleware(
     CORSMiddleware,
@@ -54,14 +56,3 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-if __name__ == "__main__" :
-    import uvicorn
-    app.include_router(router=auth_router)
-    app.include_router(router=db_router)
-    app.include_router(router=agent_router)
-    DEVELOPMENT = os.getenv("DEVELOPMENT")
-    if DEVELOPMENT:
-        uvicorn.run(app,port = 1000)
-    else:
-        uvicorn.run(app,host = "0.0.0.0",port = 1000)

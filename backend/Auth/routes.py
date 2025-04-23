@@ -75,7 +75,7 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
             response.status_code = status.HTTP_404_NOT_FOUND
             return {"error": "User does not exist or could not be found"}
 
-        if not verify_password(user["password"], login_data.password):
+        if not await verify_password(hashed_pass = user["password"], password=login_data.password):
             response.status_code = status.HTTP_401_UNAUTHORIZED
             return {"error": "Invalid password"}
 
