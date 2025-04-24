@@ -3,7 +3,7 @@ import "../ProblemEntryPage.css";
 import Navbar from '@/components/ui/navbar';
 import { useAxiosPrivate } from '@/axios';
 import { useNavigate } from 'react-router-dom';
-import Spinner  from '@/components/ui/Spinner';
+import Spinner  from '@/components/ui/spinner';
 
 const PopulatedProblemGridDemo = () => {
   const [problemData, setProblemData] = useState([]);
