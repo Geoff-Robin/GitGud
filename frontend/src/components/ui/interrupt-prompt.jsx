@@ -7,7 +7,7 @@ export function InterruptPrompt({
   close
 }) {
   return (
-    <AnimatePresence>
+    (<AnimatePresence>
       {isOpen && (
         <motion.div
           initial={{ top: 0, filter: "blur(5px)" }}
@@ -31,6 +31,6 @@ export function InterruptPrompt({
           </button>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>)
   );
 }

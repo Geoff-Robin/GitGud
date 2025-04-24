@@ -155,7 +155,7 @@ export function MessageInput({
   })
 
   return (
-    <div
+    (<div
       className="relative flex w-full"
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
@@ -187,7 +187,7 @@ export function MessageInput({
                 <AnimatePresence mode="popLayout">
                   {props.files?.map((file) => {
                     return (
-                      <FilePreview
+                      (<FilePreview
                         key={file.name + String(file.lastModified)}
                         file={file}
                         onRemove={() => {
@@ -198,7 +198,7 @@ export function MessageInput({
                             if (filtered.length === 0) return null
                             return filtered
                           })
-                        }} />
+                        }} />)
                     );
                   })}
                 </AnimatePresence>
@@ -260,7 +260,7 @@ export function MessageInput({
         audioStream={audioStream}
         textAreaHeight={textAreaHeight}
         onStopRecording={stopRecording} />
-    </div>
+    </div>)
   );
 }
 MessageInput.displayName = "MessageInput"
@@ -269,7 +269,7 @@ function FileUploadOverlay({
   isDragging
 }) {
   return (
-    <AnimatePresence>
+    (<AnimatePresence>
       {isDragging && (
         <motion.div
           className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center space-x-2 rounded-xl border border-dashed border-border bg-background text-sm text-muted-foreground"
@@ -282,7 +282,7 @@ function FileUploadOverlay({
           <span>Drop your files here to attach them.</span>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>)
   );
 }
 
@@ -310,7 +310,7 @@ function showFileUploadDialog() {
 
 function TranscribingOverlay() {
   return (
-    <motion.div
+    (<motion.div
       className="flex h-full w-full flex-col items-center justify-center rounded-xl bg-background/80 backdrop-blur-sm"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -332,7 +332,7 @@ function TranscribingOverlay() {
       <p className="mt-4 text-sm font-medium text-muted-foreground">
         Transcribing audio...
       </p>
-    </motion.div>
+    </motion.div>)
   );
 }
 
@@ -341,7 +341,7 @@ function RecordingPrompt({
   onStopRecording
 }) {
   return (
-    <AnimatePresence>
+    (<AnimatePresence>
       {isVisible && (
         <motion.div
           initial={{ top: 0, filter: "blur(5px)" }}
@@ -362,7 +362,7 @@ function RecordingPrompt({
           </span>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>)
   );
 }
 
@@ -375,21 +375,21 @@ function RecordingControls({
 }) {
   if (isRecording) {
     return (
-      <div
+      (<div
         className="absolute inset-[1px] z-50 overflow-hidden rounded-xl"
         style={{ height: textAreaHeight - 2 }}>
         <AudioVisualizer stream={audioStream} isRecording={isRecording} onClick={onStopRecording} />
-      </div>
+      </div>)
     );
   }
 
   if (isTranscribing) {
     return (
-      <div
+      (<div
         className="absolute inset-[1px] z-50 overflow-hidden rounded-xl"
         style={{ height: textAreaHeight - 2 }}>
         <TranscribingOverlay />
-      </div>
+      </div>)
     );
   }
 

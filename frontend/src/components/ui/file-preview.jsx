@@ -22,7 +22,7 @@ FilePreview.displayName = "FilePreview"
 
 const ImageFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   return (
-    <motion.div
+    (<motion.div
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -48,7 +48,7 @@ const ImageFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
-    </motion.div>
+    </motion.div>)
   );
 })
 ImageFilePreview.displayName = "ImageFilePreview"
@@ -66,7 +66,7 @@ const TextFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   }, [file])
 
   return (
-    <motion.div
+    (<motion.div
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -94,14 +94,14 @@ const TextFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
-    </motion.div>
+    </motion.div>)
   );
 })
 TextFilePreview.displayName = "TextFilePreview"
 
 const GenericFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   return (
-    <motion.div
+    (<motion.div
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -126,7 +126,7 @@ const GenericFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
-    </motion.div>
+    </motion.div>)
   );
 })
 GenericFilePreview.displayName = "GenericFilePreview"

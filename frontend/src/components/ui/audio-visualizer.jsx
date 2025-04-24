@@ -170,11 +170,11 @@ export function AudioVisualizer({
   }
 
   return (
-    <div
+    (<div
       ref={containerRef}
       className="h-full w-full cursor-pointer rounded-lg bg-background/80 backdrop-blur"
       onClick={onClick}>
       <canvas ref={canvasRef} className="h-full w-full" />
-    </div>
+    </div>)
   );
 }

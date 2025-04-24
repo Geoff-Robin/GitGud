@@ -16,7 +16,7 @@ function App() {
             <Route path="/signup" element={<SignUpPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/home" element={<ProblemEntryPage />} />
-            <Route path="/chat" element={<ChatPage />} /> 
+            <Route path="/chat/:id" element={<ChatPage />} /> 
           </Routes>
         </BrowserRouter>
       </ThemeProvider>
