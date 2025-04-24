@@ -1,31 +1,42 @@
-"""
-This module provides utility functions for the backend routes.
-
-It includes a scraper function to fetch and parse problem descriptions from LeetCode.
-"""
-
-import requests
-import json
+import requests, json, re
 from bs4 import BeautifulSoup
+from urllib.parse import urlparse
 
-def scraper(problem_slug: str) -> str:
+def scraper(problem_url: str) -> str:
     """
-    Fetch and extract the text description of a LeetCode problem using its slug.
+    Fetch and extract the text description of a LeetCode problem given its URL.
 
     Args:
-        problem_slug (str): The slug of the LeetCode problem (e.g., 'two-sum').
+        problem_url (str): Full problem URL, e.g.
+            'https://leetcode.com/problems/two-sum/description/'
 
     Returns:
-        str: The problem description as plain text, or an error message if the request fails.
+        str: Plain-text problem description, or an error message.
     """
+    # 1. Parse URL
+    parsed = urlparse(problem_url)
+    path = parsed.path.rstrip('/')  # drop trailing slash(es) :contentReference[oaicite:7]{index=7}
+
+    # 2. Extract slug
+    # Option A: split logic
+    parts = path.split('/')
+    if parts[-1] == 'description' and len(parts) >= 2:
+        slug = parts[-2]
+    else:
+        slug = parts[-1]
+
+    if not slug:
+        return f"Error: could not extract problem slug from '{problem_url}'"
+
+    # 3. Prepare GraphQL request
     url = 'https://leetcode.com/graphql/'
     headers = {
         'Content-Type': 'application/json',
-        'Referer': f'https://leetcode.com/problems/{problem_slug}/'
+        'Referer': f'https://leetcode.com/problems/{slug}/'
     }
     payload = {
         'operationName': 'questionData',
-        'variables': {'titleSlug': problem_slug},
+        'variables': {'titleSlug': slug},
         'query': '''
         query questionData($titleSlug: String!) {
           question(titleSlug: $titleSlug) {
@@ -35,22 +46,17 @@ def scraper(problem_slug: str) -> str:
         '''
     }
 
+    # 4. Fetch and parse
     try:
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        response.raise_for_status()
-        data = response.json()
+        resp = requests.post(url, headers=headers, data=json.dumps(payload))
+        resp.raise_for_status()              # HTTP errors :contentReference[oaicite:8]{index=8}
+        data = resp.json()
         if 'errors' in data:
-            return f"Error: {data['errors']}"
+            return f"Error from API: {data['errors']}"
 
-        # Extract the HTML content
-        html_content = data['data']['question']['content']
-        
-        # Parse the HTML content with BeautifulSoup
-        soup = BeautifulSoup(html_content, 'html.parser')
-        
-        # Extract text from the parsed HTML
-        text = soup.get_text(separator='\n', strip=True)
-        
-        return text
+        html = data['data']['question']['content']
+        soup = BeautifulSoup(html, 'html.parser')
+        return soup.get_text(separator='\n', strip=True)
+
     except requests.RequestException as e:
         return f"Request failed: {e}"

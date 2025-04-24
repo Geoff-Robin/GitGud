@@ -27,15 +27,11 @@ class ChatMessage(BaseModel):
     Model for a chat message containing the message content, user email, and problem URL.
     """
     message: str
-    email: str
-    problem: str
     model_config={
         "json_schema_extra":{
             "examples" : [
                     {
                         "message": "Hello, how are you?",
-                        "email": "johndoe@example.com",
-                        "problem": "https://example.com/problem1",
                     },
                 ]
             }

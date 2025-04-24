@@ -60,11 +60,11 @@ async def create_chat(
                     "timestamp": dt.datetime.now(timezone.utc),
                 }
             )
-            return {"message": "Chat created successfully", "problem": problem_nickname}
+            return {"message": "Chat created successfully", "chat_id": str(resp.inserted_id)}
         else:
             chatbot = ChatBot(messages=messages, summary="", problem=problem_url)
             result = chatbot.chat(message="")
-            resp = request.app.database["Chat List"].insert_one(
+            resp = await request.app.database["Chat List"].insert_one(
                 {
                     "problem": problem_url,
                     "user_id": user["_id"],
@@ -81,7 +81,7 @@ async def create_chat(
                     "timestamp": dt.datetime.now(timezone.utc),
                 }
             )
-            return {"message": "Chat created successfully", "chat_id": resp.inserted_id}
+            return {"message": "Chat created successfully", "chat_id": str(resp.inserted_id)}
     except Exception as e:
         logger.error(f"Error creating chat: {e}")
         response.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR

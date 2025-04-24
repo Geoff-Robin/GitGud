@@ -122,7 +122,7 @@ async def chat_message(
         )
 
         # Insert bot response
-        await request.app.database["Messages"].insert_one(
+        response = await request.app.database["Messages"].insert_one(
             {
                 "chat_id": ObjectId(chat_id),
                 "user_id": ObjectId(user["_id"]),
