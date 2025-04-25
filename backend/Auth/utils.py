@@ -14,7 +14,7 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 import datetime
-from jwt.exceptions import InvalidTokenError
+from jwt.exceptions import InvalidTokenError,ExpiredSignatureError
 
 load_dotenv()
 
@@ -202,6 +202,12 @@ async def get_current_user(
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
+    except ExpiredSignatureError:
+        raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Token has expired",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
     user = await get_user_by_id(request.app.database, _id=_id)
     if user is None:
         raise credentials_exception

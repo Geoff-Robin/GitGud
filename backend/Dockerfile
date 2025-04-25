@@ -1,8 +1,6 @@
 # Use the official Python 3.13.1 slim image as the base
 FROM python:3.13.1-slim
 
-
-
 # Set the working directory in the container
 WORKDIR /backend
 
@@ -15,11 +13,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pipenv or use requirements.txt
-# COPY Pipfile Pipfile.lock ./
-# RUN pip install pipenv && pipenv install --deploy --system
-
-# Alternatively, use requirements.txt
+# Copy and install Python dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
@@ -29,6 +23,5 @@ COPY . .
 # Expose the port FastAPI will run on
 EXPOSE 8000
 
-# Command to run the application using Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
+# Command to run the application using Uvicorn with appropriate settings
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

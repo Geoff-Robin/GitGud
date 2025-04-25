@@ -49,9 +49,13 @@ app.include_router(router=auth_router)
 app.include_router(router=db_router)
 app.include_router(router=agent_router)
 
+origins = [
+    "https://git-gud-one.vercel.app"
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,  # List of allowed origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
