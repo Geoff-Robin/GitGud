@@ -68,7 +68,7 @@ export function useAxiosPrivate() {
         const prevRequest = error?.config;
 
         // If request was unauthorized and wasn't retried yet
-        if ((error?.response?.status === 401 || error?.response?.status === 403 || error?.response.status === 500) && !prevRequest?.sent) {
+        if ((error?.response?.status === 401 || error?.response?.status === 403 ) && !prevRequest?.sent) {
           prevRequest.sent = true; // Prevent multiple retries
 
           // Refresh the access token
