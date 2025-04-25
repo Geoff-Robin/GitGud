@@ -21,9 +21,10 @@ import { Button } from "@/components/ui/button"
 function Navbar() {
   const navigate = useNavigate()
   const handleLogout = () => {
-    navigate('/')
-    console.log("Logging out...")
-  }
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("refreshToken");
+    navigate("/login");
+  };
 
   return (
     <nav className="flex items-center justify-between p-4 bg-black text-white shadow-md">
