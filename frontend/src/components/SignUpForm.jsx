@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
-
+import {AuthContext} from '@/context/auth-context'
 const SignUpForm = () => {
   const navigate = useNavigate();
   const { setAccessToken, setRefreshToken } = useContext(AuthContext);
