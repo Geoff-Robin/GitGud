@@ -6,22 +6,23 @@ import { CardsExplain } from "@/components/cardsExplain";
 import { CardContainer, CardBody, CardItem } from "@/components/ui/3d-card";
 import Footer from "@/components/ui/footer";
 import Navbar from "@/components/ui/navbar"; // Import the Navbar component
+import FAQ from "@/components/ui/faq"; // Import the FAQ component
 
 function Dashboard() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const cardsRef = useRef(null);
-
+  
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setScrolled(scrollPosition > 100);
     };
-
+    
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
+  
   return (
     <div className="relative">
       {/* Navbar at the top */}
@@ -37,7 +38,7 @@ function Dashboard() {
                 A Guided Competitive Coding Platform
               </TypingAnimation>
             </div>
-
+            
             {/* 3D Card Container */}
             <div className="w-full md:w-2/3">
               <CardContainer className="w-full">
@@ -58,7 +59,7 @@ function Dashboard() {
           </div>
         </div>
       </AuroraBackground>
-
+    
       {/* "What We Offer" Section with Aurora Background */}
       <AuroraBackground className="py-12 mt-[-120px]">
         <div ref={cardsRef} className="max-w-7xl mx-auto px-4">
@@ -69,27 +70,30 @@ function Dashboard() {
         </div>
       </AuroraBackground>
       
+      {/* FAQ Section */}
+      <FAQ />
+      
       <Footer />
-
+    
       {/* Back to top button */}
-      <button 
+      <button
         className={`fixed bottom-8 right-8 bg-white/10 backdrop-blur-sm p-3 rounded-full shadow-lg transition-opacity ${
           scrolled ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       >
-        <svg 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="h-6 w-3 text-white" 
-          fill="none" 
-          viewBox="0 0 24 24" 
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-6 w-3 text-white"
+          fill="none"
+          viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M5 10l7-7m0 0l7 7m-7-7v18" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M5 10l7-7m0 0l7 7m-7-7v18"
           />
         </svg>
       </button>
