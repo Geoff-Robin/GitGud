@@ -1,5 +1,5 @@
 from typing import TypedDict,Annotated
-from pydantic.v1 import BaseModel, Field
+from pydantic import BaseModel, Field
 from datetime import datetime
 from langgraph.graph.message import MessagesState
 from typing import Annotated
@@ -21,3 +21,18 @@ class State(TypedDict):
     summary: str = Field(..., description="The summary of the conversation.")
     problem: str = Field(..., description="The leetcode problem for the conversation.")
     level : int = Field(..., description="The level of the conversation.")
+    
+class ChatMessage(BaseModel):
+    """
+    Model for a chat message containing the message content, user email, and problem URL.
+    """
+    message: str
+    model_config={
+        "json_schema_extra":{
+            "examples" : [
+                    {
+                        "message": "Hello, how are you?",
+                    },
+                ]
+            }
+        }

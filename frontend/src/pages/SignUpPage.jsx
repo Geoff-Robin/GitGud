@@ -1,8 +1,12 @@
 import React from 'react';
 import BackgroundImage from '../components/BackgroundImage';
+<<<<<<< HEAD
 import SignUpForm from './SignUpForm';
+=======
+import SignUpForm from '@/components/SignUpForm';
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
 import { AuroraBackground } from "@/components/ui/aurora-background";
-import Navbar from './ui/navbar';
+import Navbar from '@/components/ui/navbar';
 
 const SignUpPage = () => {
   console.log("SignUpPage rendering");

@@ -22,7 +22,11 @@ FilePreview.displayName = "FilePreview"
 
 const ImageFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   return (
+<<<<<<< HEAD
     <motion.div
+=======
+    (<motion.div
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -48,7 +52,11 @@ const ImageFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
+<<<<<<< HEAD
     </motion.div>
+=======
+    </motion.div>)
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
   );
 })
 ImageFilePreview.displayName = "ImageFilePreview"
@@ -66,7 +74,11 @@ const TextFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   }, [file])
 
   return (
+<<<<<<< HEAD
     <motion.div
+=======
+    (<motion.div
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -94,14 +106,22 @@ const TextFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
+<<<<<<< HEAD
     </motion.div>
+=======
+    </motion.div>)
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
   );
 })
 TextFilePreview.displayName = "TextFilePreview"
 
 const GenericFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
   return (
+<<<<<<< HEAD
     <motion.div
+=======
+    (<motion.div
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
       ref={ref}
       className="relative flex max-w-[200px] rounded-md border p-1.5 pr-2 text-xs"
       layout
@@ -126,7 +146,11 @@ const GenericFilePreview = React.forwardRef(({ file, onRemove }, ref) => {
           <X className="h-2.5 w-2.5" />
         </button>
       ) : null}
+<<<<<<< HEAD
     </motion.div>
+=======
+    </motion.div>)
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
   );
 })
 GenericFilePreview.displayName = "GenericFilePreview"

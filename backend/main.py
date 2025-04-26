@@ -1,13 +1,30 @@
+"""
+This is the main entry point for the FastAPI application.
+
+It sets up the database connection, middleware, and API routes.
+"""
+
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
+from Auth.routes import auth_router
+from Agent import agent_router
+from Database.routes import db_router
 from dotenv import load_dotenv
 import os
 from motor.motor_asyncio import AsyncIOMotorClient
-from routes.routes import router
 from fastapi.middleware.cors import CORSMiddleware
 
 @asynccontextmanager
 async def db_lifespan(app: FastAPI):
+    """
+    Manage the lifespan of the database connection.
+
+    Args:
+        app (FastAPI): The FastAPI application instance.
+
+    Yields:
+        None
+    """
     load_dotenv()
     try:
         MONGO_DB_USERNAME = os.getenv("MONGO_DB_USERNAME")
@@ -27,20 +44,19 @@ async def db_lifespan(app: FastAPI):
 
     app.mongodb_client.close()
 
-
 app: FastAPI = FastAPI(lifespan=db_lifespan,debug=True)
+app.include_router(router=auth_router)
+app.include_router(router=db_router)
+app.include_router(router=agent_router)
+
+origins = [
+    "https://git-gud-one.vercel.app"
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,  # List of allowed origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-app.include_router(router=router)
-
-if __name__ == "__main__" :
-    import uvicorn
-    uvicorn.run(app,port = 1000)

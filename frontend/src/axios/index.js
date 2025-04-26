@@ -1,10 +1,10 @@
 import axios from "axios";
 import { useContext, useEffect } from "react";
-import { AuthContext } from "@/store/auth-context"; // Adjust path as necessary
+import { AuthContext } from "@/context/auth-context"; // Adjust path as necessary
 
 //const API_URL = "http://127.0.0.1:8000/api/";
 const isDevelopment=import.meta.env.VITE_MODE==='development'
-const API_URL=isDevelopment? import.meta.env.VITE_API_BASE_URL_DEPLOY : import.meta.env.VITE_API_BASE_URL_LOCAL
+const API_URL=isDevelopment? import.meta.env.VITE_API_BASE_URL_LOCAL : import.meta.env.VITE_API_BASE_URL_DEPLOY
 export const axiosInstance = axios.create({
   baseURL: API_URL,
   withCredentials: true,
@@ -68,7 +68,7 @@ export function useAxiosPrivate() {
         const prevRequest = error?.config;
 
         // If request was unauthorized and wasn't retried yet
-        if ((error?.response?.status === 401 || error?.response?.status === 403) && !prevRequest?.sent) {
+        if ((error?.response?.status === 401 || error?.response?.status === 403 ) && !prevRequest?.sent) {
           prevRequest.sent = true; // Prevent multiple retries
 
           // Refresh the access token

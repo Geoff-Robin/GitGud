@@ -170,11 +170,19 @@ export function AudioVisualizer({
   }
 
   return (
+<<<<<<< HEAD
     <div
+=======
+    (<div
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
       ref={containerRef}
       className="h-full w-full cursor-pointer rounded-lg bg-background/80 backdrop-blur"
       onClick={onClick}>
       <canvas ref={canvasRef} className="h-full w-full" />
+<<<<<<< HEAD
     </div>
+=======
+    </div>)
+>>>>>>> c7b3440e5ad509bce6a7cb1fd10528d1514d5cc3
   );
 }
