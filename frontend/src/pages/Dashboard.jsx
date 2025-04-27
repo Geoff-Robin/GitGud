@@ -12,69 +12,63 @@ function Dashboard() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
   const cardsRef = useRef(null);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       const scrollPosition = window.scrollY;
       setScrolled(scrollPosition > 100);
     };
-    
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  
+
   return (
-    <div className="relative">
-      {/* Navbar at the top */}
-      <Navbar />
-      
+    <div className="relative flex flex-col">
+
       {/* Hero Section with 3D Card */}
-      <AuroraBackground className="min-h-[80vh] flex flex-col items-center px-4">
-        <div className="max-w-7xl mx-auto w-full">
-          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
-            {/* Typing Animation on the left */}
-            <div className="w-full md:w-1/3">
-              <TypingAnimation className="text-white text-3xl md:text-5xl font-bold">
-                A Guided Competitive Coding Platform
-              </TypingAnimation>
-            </div>
-            
-            {/* 3D Card Container */}
-            <div className="w-full md:w-2/3">
-              <CardContainer className="w-full">
-                <CardBody className="bg-black/80 relative group/card dark:bg-black/90 dark:border-white/[0.2] border-black/[0.1] w-full rounded-xl p-6 border">
-                  {/* Card Image */}
-                  <CardItem translateZ={100} className="w-full">
-                    <img
-                      src="/images/Photo2.jpg"
-                      className="h-72 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-                      alt="dashboard background"
-                    />
-                  </CardItem>
-                </CardBody>
-              </CardContainer>
-              
-              {/* Removed the Login and Signup buttons from here */}
+      <AuroraBackground className="h-auto" showRadialGradient={false}>
+        <div className="flex flex-col">
+          <Navbar />
+          <div className="mt-20 max-w-7xl mx-auto w-full px-4 mb-20">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-6">
+              {/* Typing Animation on the left */}
+              <div className="w-full md:w-1/3">
+                <TypingAnimation className="text-white text-3xl md:text-5xl font-bold">
+                  A Guided Competitive Coding Platform
+                </TypingAnimation>
+              </div>
+
+              {/* 3D Card Container */}
+              <div className="w-full md:w-2/3">
+                <CardContainer className="w-full">
+                  <CardBody className="bg-black/80 relative group/card dark:bg-black/90 dark:border-white/[0.2] border-black/[0.1] w-full rounded-xl p-6 border">
+                    {/* Card Image */}
+                    <CardItem translateZ={100} className="w-full">
+                      <img
+                        src="/images/Photo2.jpg"
+                        className="h-72 w-full object-cover rounded-xl group-hover/card:shadow-xl"
+                        alt="dashboard background"
+                      />
+                    </CardItem>
+                  </CardBody>
+                </CardContainer>
+              </div>
             </div>
           </div>
+          <div ref={cardsRef} className="max-w-7xl mx-auto w-full px-4">
+            <h2 className="text-white text-4xl font-bold text-center mb-12">
+              What We Offer
+            </h2>
+            <CardsExplain />
+          </div>
+          {/* FAQ Section */}
+          <FAQ />
         </div>
       </AuroraBackground>
-    
-      {/* "What We Offer" Section with Aurora Background */}
-      <AuroraBackground className="py-12 mt-[-120px]">
-        <div ref={cardsRef} className="max-w-7xl mx-auto px-4">
-          <h2 className="text-white text-4xl font-bold text-center mb-12">
-            What We Offer
-          </h2>
-          <CardsExplain />
-        </div>
-      </AuroraBackground>
-      
-      {/* FAQ Section */}
-      <FAQ />
-      
+
       <Footer />
-    
+
       {/* Back to top button */}
       <button
         className={`fixed bottom-8 right-8 bg-white/10 backdrop-blur-sm p-3 rounded-full shadow-lg transition-opacity ${
