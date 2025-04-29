@@ -50,7 +50,8 @@ app.include_router(router=db_router)
 app.include_router(router=agent_router)
 
 origins = [
-    "https://git-gud-one.vercel.app"
+    "https://git-gud-one.vercel.app",
+    "http://localhost:5173"
 ]
 
 app.add_middleware(

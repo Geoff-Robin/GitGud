@@ -34,18 +34,17 @@ class ChatBot:
         self._level = level
         self._API_KEY = os.getenv("GROQ_API_KEY")
         self._EXECUTE_URL = os.getenv("CODE_RUNNER_API_URL")
-        print(level)
         assert self._API_KEY, "Missing GROQ_API_KEY in .env"
         assert self._EXECUTE_URL, "Missing CODE_RUNNER_API_URL in .env"
 
         self._cold_model = ChatGroq(
-            model="qwen-qwq-32b", temperature=0.3, api_key=self._API_KEY
+            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.3, api_key=self._API_KEY
         )
         self._hot_model = ChatGroq(
-            model="qwen-qwq-32b", temperature=0.5, api_key=self._API_KEY
+            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.5, api_key=self._API_KEY
         )
         self._summarizer = ChatGroq(
-            model="qwen-qwq-32b", temperature=0.5, api_key=self._API_KEY
+            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.5, api_key=self._API_KEY
         )
         self._search_tool = DuckDuckGoSearchResults(max_results=5)
 
@@ -138,7 +137,6 @@ class ChatBot:
                 "summary": self._summary,
             }
             result = graph.invoke(state)
-            print(result)
             return {
                 "response": result["messages"][-1].content,
                 "summary": result["summary"],
@@ -151,7 +149,6 @@ class ChatBot:
                 "summary": self._summary,
             }
             result = graph.invoke(state)
-            print(result)
             return {
                 "response": result["messages"][-1].content,
                 "summary": result["summary"],

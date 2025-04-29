@@ -89,7 +89,7 @@ async def login(login_data: LoginReqModel, response: Response, request: Request)
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@auth_router.get("/refresh", summary="Refresh JWT tokens")
+@auth_router.post("/refresh", summary="Refresh JWT tokens")
 async def refresh_token(response: Response, user=Depends(get_current_user_refresh)):
     """
     Refresh the JWT access token using a refresh token.
@@ -108,6 +108,7 @@ async def refresh_token(response: Response, user=Depends(get_current_user_refres
             return {"error": "Invalid refresh token"}
         return {
             "ACCESS_TOKEN": await create_access_token(user_id),
+            "REFRESH_TOKEN":await create_refresh_token(user_id)
         }
     except Exception as e:
         logger.error(f"Error during token refresh: {e}")

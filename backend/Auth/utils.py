@@ -14,12 +14,13 @@ from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel
 import datetime
-from jwt.exceptions import InvalidTokenError,ExpiredSignatureError
+from jose.exceptions import ExpiredSignatureError
+from jwt.exceptions import InvalidTokenError
 
 load_dotenv()
 
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24
 ALGORITHM = "HS256"
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
@@ -45,23 +46,21 @@ async def get_user(db, email: str):
     user = await db.Users.find_one({"email": email})
     return user
 
-async def get_user_by_id(db,_id : ObjectId):
+async def get_user_by_id(db, _id: ObjectId):
     """
-    Retrieve a user from the database by email.
+    Retrieve a user from the database by ID.
 
     Args:
         db: The database connection.
-        email (str): The email of the user to retrieve.
+        _id (ObjectId): The ID of the user to retrieve.
 
     Returns:
         The user object if found, otherwise None.
     """
     try:
-        user = await db.Users.find_one({"_id":_id})
-        print("User found:", user)
+        user = await db.Users.find_one({"_id": _id})
         return user
     except Exception as e:
-        print("Error in get_user:", e)
         return None
 
 
@@ -169,6 +168,13 @@ async def get_current_user_refresh(request: Request):
     except (InvalidTokenError, ValueError):
         raise credentials_exception
     
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     user = await get_user_by_id(request.app.database, ObjectId(_id))
     if user is None:
         raise credentials_exception
@@ -195,20 +201,18 @@ async def get_current_user(
     )
     try:
         payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[ALGORITHM])
-        print("decoded payload", payload)
         _id = ObjectId(payload.get("sub"))
-        print(_id)
         if _id is None:
             raise credentials_exception
+        user = await get_user_by_id(request.app.database, _id=_id)
+        if user is None:
+            raise credentials_exception
+        return user
     except InvalidTokenError:
         raise credentials_exception
     except ExpiredSignatureError:
         raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token has expired",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    user = await get_user_by_id(request.app.database, _id=_id)
-    if user is None:
-        raise credentials_exception
-    return user
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
