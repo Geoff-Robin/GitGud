@@ -26,7 +26,7 @@ const PopulatedProblemGridDemo = () => {
         const resList = await axiosPrivateInstance.get(`/chats?skip=${(currentPage-1)*GRID_SIZE}&limit=${GRID_SIZE}`);
         setProblemData(resList.data || []);
         const resLen = await axiosPrivateInstance.get(`/len_chat`);
-        setTotalPages(Math.ceil((resLen.data.length || 0) / GRID_SIZE));
+        setTotalPages((Math.floor((resLen.data.length || 0) / GRID_SIZE))+1);
       } catch (error) {
         console.error('Error fetching problems:', error);
       }

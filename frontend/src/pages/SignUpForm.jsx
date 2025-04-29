@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { useContext,useState } from 'react';
 import {AuthContext} from '@/context/auth-context'
+import { axiosInstance } from '@/axios';
 const SignUpForm = () => {
   const navigate = useNavigate();
   const { setAccessToken, setRefreshToken } = useContext(AuthContext);
@@ -32,7 +33,7 @@ const SignUpForm = () => {
 
     try {
       const response = await axiosInstance.post('/register', {
-        name,
+        username: name,
         email,
         password,
       });

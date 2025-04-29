@@ -22,7 +22,7 @@ export const axiosPrivateInstance = axios.create({
 });
 
 // Refresh token function
-async function refreshAccessToken(setAccessToken) {
+async function refreshAccessToken(setAccessToken,setRefreshToken) {
   try {
     const refreshToken = sessionStorage.getItem("refreshToken"); // Get the refresh token from localStorage
     if (!refreshToken) {
@@ -31,14 +31,15 @@ async function refreshAccessToken(setAccessToken) {
 
     const response = await axios.post(
       `${API_URL}/refresh`,
-      { refresh: refreshToken }, // Send the refresh token in the body
-      { withCredentials: true }
+      { refresh_token: refreshToken } // Send the refresh token in the body
     );
     const newAccessToken = response?.data?.ACCESS_TOKEN;
-
+    const newRefreshToken = response?.data?.REFRESH_TOKEN;
     if (newAccessToken) {
+      sessionStorage.setItem("accessToken", newAccessToken);
+      sessionStorage.setItem("refreshToken", newRefreshToken);
       setAccessToken(newAccessToken);
-      sessionStorage.setItem("refreshToken", newRefreshToken); 
+      setRefreshToken(newRefreshToken);
       return newAccessToken;
     }
   } catch (error) {
@@ -49,13 +50,14 @@ async function refreshAccessToken(setAccessToken) {
 
 // Custom Axios Hook
 export function useAxiosPrivate() {
-  const { accessToken, setAccessToken } = useContext(AuthContext);
+  const { setAccessToken,setRefreshToken } = useContext(AuthContext);
 
   useEffect(() => {
     const requestInterceptor = axiosPrivateInstance.interceptors.request.use(
       (config) => {
-        if (accessToken) {
-          config.headers["Authorization"] = `Bearer ${accessToken}`;
+        const token = sessionStorage.getItem("accessToken");
+        if (token) {
+          config.headers["Authorization"] = `Bearer ${token}`;
         }
         return config;
       },
@@ -67,16 +69,16 @@ export function useAxiosPrivate() {
       async (error) => {
         const prevRequest = error?.config;
 
-        // If request was unauthorized and wasn't retried yet
-        if ((error?.response?.status === 401 || error?.response?.status === 403 ) && !prevRequest?.sent) {
-          prevRequest.sent = true; // Prevent multiple retries
-
-          // Refresh the access token
-          const newAccessToken = await refreshAccessToken(setAccessToken);
-
+        if (
+          (error?.response?.status === 401 || error?.response?.status === 403) &&
+          !prevRequest?.sent
+        ) {
+          
+          const newAccessToken = await refreshAccessToken(setAccessToken,setRefreshToken);
+          console.log(newAccessToken)
           if (newAccessToken) {
             prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-            return axiosPrivateInstance(prevRequest); // Retry the request with the new token
+            return axiosPrivateInstance(prevRequest);
           }
         }
 
@@ -88,7 +90,7 @@ export function useAxiosPrivate() {
       axiosPrivateInstance.interceptors.request.eject(requestInterceptor);
       axiosPrivateInstance.interceptors.response.eject(responseInterceptor);
     };
-  }, [accessToken, setAccessToken]);
+  }, [setAccessToken]);
 
   return axiosPrivateInstance;
-}
+} 
