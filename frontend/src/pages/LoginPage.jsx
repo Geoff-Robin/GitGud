@@ -84,20 +84,10 @@ const LoginPage = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-3 py-2 bg-black border border-gray-500 rounded-full text-white focus:ring-blue-500"
+                      className="w-full mb-7 px-3 py-2 bg-black border border-gray-500 rounded-full text-white focus:ring-blue-500"
                       required
                     />
                   </div>
-
-                  <div className="text-right mb-4">
-                    <a
-                      href="#"
-                      className="text-xs text-blue-500 hover:underline"
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
-
                   <button
                     type="submit"
                     className="w-full py-2 text-black bg-gray-200 rounded-full text-sm font-semibold hover:bg-gray-300 transition cursor-pointer"
