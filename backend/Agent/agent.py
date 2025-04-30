@@ -72,11 +72,14 @@ class ChatBot:
 
     def try_running(self, state: Dict[str, Any]) -> Dict[str, Any]:
         judge_msg = {"role": "system", "content": JUDGE_SYSTEM_PROMPT}
-        msgs = [judge_msg] + state["messages"]
+        last_message = {"role" : "assistant","content":state["messages"][-1].content}
+        msgs = [judge_msg] + [last_message]
         extractor = self._cold_model.bind_tools([ExtractCode, NoCode])
         er = extractor.invoke(msgs)
         if not getattr(er, "tool_calls", []):
             return state
+        print(state["messages"])
+        print(er)
         tc = er.tool_calls[0]
         if tc["name"] != "ExtractCode":
             return state
@@ -138,12 +141,11 @@ class ChatBot:
             }
             result = graph.invoke(state)
             return {
-                "response": result["messages"][-1].content,
+                "response": result["messages"][-2].content,
                 "summary": result["summary"],
             }
         else:
             graph = self.create_agent()
-            graph = self.create_reflection()
             state = {
                 "messages": self._messages,
                 "summary": self._summary,

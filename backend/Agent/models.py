@@ -8,8 +8,8 @@ from langgraph.graph.message import add_messages
 
 class ExtractCode(TypedDict):
     """Type class for extracting Python code. The python_code field is the code to be extracted."""
-    code: str
-    language: str | None
+    code: str = Field(...,description="Enter code if there is any code in the message")
+    language: str  | None = Field(...,description="Enter the programming language of the code")
 
 class NoCode(TypedDict):
     """Type class for indicating no code was found."""
