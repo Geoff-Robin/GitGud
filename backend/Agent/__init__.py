@@ -2,7 +2,7 @@ from Agent.agent import *
 from fastapi import APIRouter, Depends, Request, Response, status
 from Auth import get_current_user
 import datetime as dt
-from pymongo import DESCENDING, ASCENDING
+from pymongo import ASCENDING
 from Agent.models import ChatMessage
 from datetime import datetime, timezone
 import logging
@@ -74,6 +74,7 @@ async def chat_message(
             sort=[("timestamp", ASCENDING)],
         )
 
+        # Getting the time difference between the timestamp of the first message in chat and current time
         time_difference_minutes = None
         if earliest_message and "timestamp" in earliest_message:
             earliest_time = earliest_message["timestamp"]
@@ -83,6 +84,8 @@ async def chat_message(
             diff = now - earliest_time
             time_difference_minutes = diff.total_seconds() / 60
 
+        
+        # Formatting chat history
         formatted_history = [
             {"role": m["role"], "content": m["message"]}
             for m in chat_history
@@ -91,6 +94,8 @@ async def chat_message(
 
         summary = chat.get("summary", "")
         problem = chat.get("problem_statement", "")
+        
+        #Calling Level Based Chabot
         if time_difference_minutes <= 20:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem
@@ -103,8 +108,10 @@ async def chat_message(
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=2
             )
-        result = chatbot.chat(message=chat_message.message)
+        result = await chatbot.chat(message=chat_message.message)
         
+        
+        #Inserting user request after successfull bot response
         await request.app.database["Messages"].insert_one(
             {
                 "chat_id": ObjectId(chat_id),

@@ -7,13 +7,15 @@ It includes methods for summarizing conversations, interacting with models, and 
 import os
 import requests
 from dotenv import load_dotenv
-from typing import List, Dict, Any, Literal, TypedDict
-from langchain_groq import ChatGroq
+from typing import List, Dict, Any, Literal, Union
 from langgraph.graph import StateGraph, START, END
 from langgraph_reflection import create_reflection_graph
-from langchain_community.tools import DuckDuckGoSearchResults
-from Agent.models import NoCode, ExtractCode, State
-from Agent.prompts import SYSTEM_PROMPT, JUDGE_SYSTEM_PROMPT,SUMMARIZER_PROMPT
+from pydantic_ai.common_tools.duckduckgo import duckduckgo_search_tool
+from Agent.models import *
+from langchain_core.messages import AIMessage, HumanMessage
+from httpx import AsyncClient
+from pydantic_ai import Agent
+from Agent.prompts import *
 
 
 class ChatBot:
@@ -26,7 +28,14 @@ class ChatBot:
         summary (str): A summary of the conversation.
         level (int): The assistance level (0, 1, or 2).
     """
-    def __init__(self, messages: List[Dict[str, str]], problem: str, summary: str = "",level: int = 0):
+
+    def __init__(
+        self,
+        messages: List[Dict[str, str]],
+        problem: str,
+        summary: str = "",
+        level: int = 0,
+    ):
         load_dotenv()
         self._messages = messages
         self._problem = problem.strip()
@@ -37,67 +46,152 @@ class ChatBot:
         assert self._API_KEY, "Missing GROQ_API_KEY in .env"
         assert self._EXECUTE_URL, "Missing CODE_RUNNER_API_URL in .env"
 
-        self._cold_model = ChatGroq(
-            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.3, api_key=self._API_KEY
-        )
-        self._hot_model = ChatGroq(
-            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.5, api_key=self._API_KEY
-        )
-        self._summarizer = ChatGroq(
-            model="meta-llama/llama-4-scout-17b-16e-instruct", temperature=0.5, api_key=self._API_KEY
-        )
-        self._search_tool = DuckDuckGoSearchResults(max_results=5)
+        self._chat_model: Agent[None, ChatbotCodeOutput]
+        self._judge_model: Agent[None, JudgeOutput]
+        self._deps = AgentDeps(api_key=self._API_KEY, http_client=AsyncClient)
+        self._chat_settings = {"temperature": 1}
+        self._judge_settings = {"temperature": 0.3}
+        self._summarizer_settings = {"temperature": 0.4}
 
-    def should_run(self, state: Dict[str, Any]) -> Literal["summarize", "call_model"]:
-        return "summarize" if len(state["messages"]) > 5 else "call_model"
+    async def should_run(
+        self, state: Dict[str, Any]
+    ) -> Literal["summarize", "call_model"]:
+        return "summarize" if len(state["messages"]) > 10 else "call_model"
 
-    def summarize(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        prompt = SUMMARIZER_PROMPT
-        sys_msg = {"role": "system", "content": prompt}
-        response = self._summarizer.invoke([sys_msg] + state["messages"])
-        state["summary"] = response.content
-        state["messages"] = state["messages"][-3:]
+    async def summarize(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        self._chat_model = Agent(
+            model="groq:gemma2-9b-it",
+            system_prompt=SUMMARIZER_PROMPT,
+            model_settings=self._summarizer_settings,
+            deps_type=AgentDeps,
+        )
+        # Making chat history into strings
+        chat_history = ""
+        for m in state["messages"]:
+            if type(m) == HumanMessage:
+                chat_history += "User: " + m.text() + "\n"
+            elif type(m) == AIMessage:
+                chat_history += "Assistant: " + m.text() + "\n"
+        result = await self._chat_model.run(
+            "Summarize the following:\n" + chat_history, deps=self._deps
+        )
+        self._summary = "Summary of earlier conversation" + result.output
         return state
 
-    def call_model(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        sys_msg = {
-            "role": "system",
-            "content": SYSTEM_PROMPT[self._level] + "\n\nProblem:\n" + self._problem+ "Summarized conversation given by Summary Bot: " + state["summary"]
-        }
-        msgs = [sys_msg] + state["messages"]
-        model = self._hot_model.bind_tools([self._search_tool])
-        ai_msg = model.invoke(msgs)
-        state["messages"].append({"role": "assistant", "content": ai_msg.content})
-        return state
-
-    def try_running(self, state: Dict[str, Any]) -> Dict[str, Any]:
-        judge_msg = {"role": "system", "content": JUDGE_SYSTEM_PROMPT}
-        last_message = {"role" : "assistant","content":state["messages"][-1].content}
-        msgs = [judge_msg] + [last_message]
-        extractor = self._cold_model.bind_tools([ExtractCode, NoCode])
-        er = extractor.invoke(msgs)
-        if not getattr(er, "tool_calls", []):
-            return state
-        print(state["messages"])
-        print(er)
-        tc = er.tool_calls[0]
-        if tc["name"] != "ExtractCode":
-            return state
-        code = tc["args"]["code"]
-        resp = requests.post(
-            self._EXECUTE_URL, json={"code": code, "language": tc["args"]["language"]}
+    async def call_model(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        
+        chat_history = None
+        if self._summary == "":
+            chat_history = "The below is earlier conversation:\n"
+            for m in state["messages"]:
+                if type(m) == HumanMessage:
+                    chat_history += "User: " + m.text() + "\n"
+                elif type(m) == AIMessage:
+                    chat_history += "Assistant: " + m.text() + "\n"
+        
+        
+        FINAL_SYSTEM_PROMPT = (
+            SYSTEM_PROMPT[self._level]
+            + "\n\nProblem:\n"
+            + self._problem
+            + self._summary
+            if self._summary == ""
+            else chat_history
         )
-        result = resp.json()
-        if result.get("output") == "False":
+        
+        
+        self._chat_model = Agent(
+            model="groq:qwen-qwq-32b",
+            system_prompt=FINAL_SYSTEM_PROMPT,
+            model_settings=self._chat_settings,
+            deps_type=AgentDeps,
+            output_type=ChatbotCodeOutput,
+        )
+
+
+        result = await self._chat_model.run(
+            state["messages"][-1].content, deps=self._deps
+        )
+        
+        
+        if type(result.output) == ChatbotCodeOutput:
             state["messages"].append(
                 {
-                    "role": "user",
-                    "content": f"Execution failed: {result.get('error','unknown')}. Try running the correct code.",
+                    "role": "assistant",
+                    "content": result.output.extracted_code
+                    + "\n\n\n"
+                    + result.output.code_explanation,
                 }
             )
+            
+            
+        elif type(result.output) == str:
+            state["messages"].append({"role": "assistant", "content": result.output})
+
+
+        if type(result.output) == ChatbotCodeOutput:
+            state["extract_code"] = ExtractCode(
+                code=(
+                    result.output.extracted_code
+                    + "\n\n\n"
+                    + result.output.validation_code
+                ),
+                language=result.output.extracted_code_language,
+            )
+
         return state
 
-    def create_reflection(self):
+    async def try_running(self, state: Dict[str, Any]) -> Dict[str, Any]:
+        if state["extract_code"]:
+            
+            resp = requests.post(
+                self._EXECUTE_URL,
+                json={
+                    "code": state["extract_code"]["code"],
+                    "language": state["extract_code"]["language"],
+                },
+            )
+            
+            result = resp.json()
+            print(result)
+            
+            
+            if resp.status_code == 200:
+                output = result.get("output")
+            else:
+                output = result
+                
+            
+            self._judge_model = Agent(
+                model="groq:gemma2-9b-it",
+                system_prompt=JUDGE_SYSTEM_PROMPT,
+                output_type=JudgeOutput,
+                model_settings=self._judge_settings,
+                deps_type=AgentDeps,
+            )
+            judge_result = await self._judge_model.run(
+                user_prompt="Code:\n"
+                + state["extract_code"]["code"]
+                + "\nOutput"
+                + (output or "Error"),
+                deps=self._deps,
+            )
+            print(judge_result.output)
+            if not judge_result.output["passed"]:
+                state["messages"].append(
+                    {
+                        "role": "user",
+                        "content": f"This solution code is incorrect, as i get the incorrect output: "
+                        + output
+                        + "\nHere's my advice on correcting it: \n"
+                        + judge_result.output["advice"],
+                    }
+                )
+            state["extract_code"] = None
+
+        return state
+
+    async def create_reflection(self):
         agent_graph = (
             StateGraph(State)
             .add_node(self.summarize, "summarize")
@@ -107,7 +201,7 @@ class ChatBot:
             .add_edge("call_model", END)
             .compile()
         )
-        judge_graph= (
+        judge_graph = (
             StateGraph(State)
             .add_node(self.try_running, "try_running")
             .add_edge(START, "try_running")
@@ -116,7 +210,7 @@ class ChatBot:
         )
         return create_reflection_graph(agent_graph, judge_graph).compile()
 
-    def create_agent(self):
+    async def create_agent(self):
         agent_graph = (
             StateGraph(State)
             .add_node(self.summarize, "summarize")
@@ -127,31 +221,26 @@ class ChatBot:
             .compile()
         )
         return agent_graph
-    def chat(self, message: str) -> Dict[str, Any]:
+
+    async def chat(self, message: str | None = None) -> Dict[str, str]:
         result = None
-        self._messages.append({
-                "role" : "user",
-                "content" : message
-            })
+        if message:
+            self._messages.append({"role": "user", "content": message})
         if self._level == 2:
-            graph = self.create_reflection()
-            state = {
-                "messages": self._messages,
-                "summary": self._summary,
-            }
-            result = graph.invoke(state)
+            graph = await self.create_reflection()
+            state = State(messages=self._messages, extract_code=None)
+            result = await graph.ainvoke(state)
             return {
                 "response": result["messages"][-2].content,
-                "summary": result["summary"],
-            }
-        else:
-            graph = self.create_agent()
-            state = {
-                "messages": self._messages,
                 "summary": self._summary,
             }
-            result = graph.invoke(state)
+        else:
+            graph = await self.create_agent()
+            state = {
+                "messages": self._messages,
+            }
+            result = await graph.ainvoke(state)
             return {
                 "response": result["messages"][-1].content,
-                "summary": result["summary"],
+                "summary": self._summary,
             }

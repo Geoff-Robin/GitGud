@@ -12,15 +12,16 @@ if (!fs.existsSync(tempDir)) {
 }
 
 app.post("/execute", (req, res) => {
-  const { language, code } = req.body;
+  let { language, code } = req.body;
   let command;
+  language = language.toLowerCase();
   let filename, executable;
-
+  console.log(code)
   switch (language) {
     case "python":
       filename = path.join(tempDir, "temp.py");
       fs.writeFileSync(filename, code);
-      command = `python3 ${filename}`;
+      command = `python ${filename}`;
       break;
     case "c":
     case "c++":
@@ -50,14 +51,13 @@ app.post("/execute", (req, res) => {
       return res.status(500).json(stderr);
     }
     const output = stdout.trim();
-    const result = output === "true";
     res.status(200).json({
-        "output" : result
+        "output" : output
     });
   });
 });
 
-const PORT = process.env.PORT || 3530;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
