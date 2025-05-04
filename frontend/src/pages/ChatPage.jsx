@@ -123,6 +123,11 @@ export default function ChatPage() {
       // 3. Add the bot's reply
       setMessages((prev) => [...prev, botMessage]);
     } catch (err) {
+      const botMessage = {
+        role: "assistant",
+        message: "Error occured, try again later!",
+      };
+      setMessages((prev) => [...prev, botMessage]);
       console.error(err);
     } finally {
       setGenerating(false);
