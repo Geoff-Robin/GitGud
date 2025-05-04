@@ -22,9 +22,13 @@ class NoCode(TypedDict):
 class JudgeOutput(TypedDict):
     """Type class for judge output."""
 
-    passed: str = Field(
+    passed: bool = Field(
         ...,
         description="'True' if solution code passes all test cases and 'False' if it doesn't",
+    )
+    advice: str =Field(
+        ...,
+        description="Give advice on correcting the solution"
     )
 
 
@@ -33,8 +37,8 @@ class State(TypedDict):
 
     messages: Annotated[
         list, add_messages
-    ]  # Ensure 'add_messages' is properly defined elsewhere
-    extract_code: ExtractCode
+    ]  
+    extract_code: ExtractCode | None = None
 
 
 class ChatMessage(BaseModel):
@@ -66,21 +70,14 @@ class ChatbotCodeOutput(BaseModel):
     validation_code: str = Field(
         ...,
         description="Validation Code should print/give an output ''True'' if it passes all test cases",
-        examples="""python code:
+        examples=["""python code:
     print(longest_palindrome("babad")=="bab")  # Output: "bab"
-    print(longest_palindrome("cbbd")=="cbbd")""",
+    print(longest_palindrome("cbbd")=="cbbd")"""],
     )
     code_explanation: str = Field(
         ...,
         description="A detailed explanation of the logic, approach, and time/space complexity of the extracted solution.",
     )
-    extra_bot_response_beginning: str = Field(
-        ..., description="Introductory part of the bot's response."
-    )
-    extra_bot_response_end: str = Field(
-        ..., description="Closing part of the bot's response."
-    )
-
 
 @dataclass
 class AgentDeps:

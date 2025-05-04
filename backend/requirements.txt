@@ -16,3 +16,4 @@ python_jose==3.4.0
 Requests==2.32.3
 starlette==0.46.2
 duckduckgo_search==7.5.0
+bcrypt==3.2.0

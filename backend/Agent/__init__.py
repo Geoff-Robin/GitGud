@@ -2,7 +2,7 @@ from Agent.agent import *
 from fastapi import APIRouter, Depends, Request, Response, status
 from Auth import get_current_user
 import datetime as dt
-from pymongo import DESCENDING, ASCENDING
+from pymongo import ASCENDING
 from Agent.models import ChatMessage
 from datetime import datetime, timezone
 import logging
@@ -108,7 +108,7 @@ async def chat_message(
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem, level=2
             )
-        result = chatbot.chat(message=chat_message.message)
+        result = await chatbot.chat(message=chat_message.message)
         
         
         #Inserting user request after successfull bot response

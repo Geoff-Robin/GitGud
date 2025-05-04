@@ -4,9 +4,9 @@
   "description": "Sandboxed code executor api",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server.js",
-    "build": "nodemon server.js"
+    "start": "node server.js",
+    "test": "nodemon server.js",
+    "build": "npm install"
   },
   "author": "Geoff-Robin",
   "license": "ISC",

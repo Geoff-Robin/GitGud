@@ -42,7 +42,7 @@ async def create_chat(
             return {"error": "Invalid problem URL"}
         if problem_nickname:
             chatbot = ChatBot(messages=messages, summary="", problem=problem_nickname)
-            result = chatbot.chat(message="")
+            result = await chatbot.chat()
             resp = await request.app.database["Chat List"].insert_one(
                 {
                     "problem": problem_nickname,
@@ -63,7 +63,7 @@ async def create_chat(
             return {"message": "Chat created successfully", "chat_id": str(resp.inserted_id)}
         else:
             chatbot = ChatBot(messages=messages, summary="", problem=problem_url)
-            result = chatbot.chat(message="")
+            result = await chatbot.chat()
             resp = await request.app.database["Chat List"].insert_one(
                 {
                     "problem": problem_url,
