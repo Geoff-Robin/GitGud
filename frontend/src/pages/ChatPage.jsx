@@ -5,7 +5,7 @@ import { useAxiosPrivate } from "@/axios";
 import { useNavigate, useParams } from "react-router-dom";
 import { ChatMessage } from "@/components/ui/chat-message";
 import { TypingIndicator } from "@/components/ui/typing-indicator";
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -14,12 +14,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-} from "@/components/ui/dropdown-menu"
-import { Home, LogOut, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dropdown-menu";
+import { Home, LogOut, ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 function Navbar() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleLogout = () => {
     sessionStorage.removeItem("accessToken");
     sessionStorage.removeItem("refreshToken");
@@ -27,51 +27,49 @@ function Navbar() {
   };
 
   return (
-    <nav className="flex items-center justify-between p-4 bg-black text-white shadow-md">
+    <nav className="flex items-center justify-between p-4 bg-black text-white shadow-md border-b-1">
       <Link to="/" className="text-2xl title">
         GitGud
       </Link>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="group inline-flex items-center space-x-1 text-white border-white"
-          >
+          <Button className="text-foreground bg-gray-900 hover:text-gray-700 hover:bg-white">
             <span>Menu</span>
-            <ChevronDown
-              className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180"
-            />
+            <ChevronDown className="h-4 w-4 transition-transform duration-100 group-data-[state=open]:rotate-180" />
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent
           align="end"
           sideOffset={4}
-          className="w-56 bg-white text-black p-2 rounded-lg shadow-xl
+          className="w-56 p-2 rounded-lg shadow-xl
                      data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95
                      data-[side=bottom]:slide-in-from-top-2"
         >
-          <DropdownMenuLabel className="px-2 py-1 text-xs text-gray-500">
+          <DropdownMenuLabel className="px-2 py-1 text-xs text-gray-300">
             Navigate
           </DropdownMenuLabel>
 
-          <DropdownMenuItem asChild className="flex items-center px-2 py-2 rounded-sm hover:bg-gray-100">
+          <DropdownMenuItem
+            asChild
+            className="flex text-gray-50 items-center px-2 py-2 rounded-sm hover:bg-white hover:text-gray-700"
+          >
             <Link to="/home" className="flex items-center space-x-2">
               <Home className="h-4 w-4" />
               <span>Home</span>
             </Link>
           </DropdownMenuItem>
 
-          <DropdownMenuSeparator className="my-1 h-px bg-gray-200" />
+          <DropdownMenuSeparator className="my-1 h-px bg-gray-800" />
 
-          <DropdownMenuLabel className="px-2 py-1 text-xs text-gray-500">
+          <DropdownMenuLabel className="px-2 py-1 text-xs text-gray-300">
             Account
           </DropdownMenuLabel>
 
           <DropdownMenuItem
             onSelect={handleLogout}
-            className="flex items-center px-2 py-2 rounded-sm hover:bg-gray-100"
+            className="flex items-center text-gray-50  px-2 py-2 rounded-sm hover:bg-gray-100 hover:text-gray-400"
           >
             <LogOut className="h-4 w-4" />
             <span>Logout</span>
@@ -80,10 +78,8 @@ function Navbar() {
         </DropdownMenuContent>
       </DropdownMenu>
     </nav>
-  )
+  );
 }
-
-
 
 export default function ChatPage() {
   const [message, setMessage] = useState("");
@@ -166,8 +162,8 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen max-w-4xl mx-auto">
-      <Navbar/>
+    <div className="flex flex-col h-screen max-w mx-auto">
+      <Navbar />
       {/* Chat Container */}
       <div className="flex-1 flex flex-col justify-between overflow-hidden">
         {/* Empty State with Centered Suggestions */}
@@ -197,7 +193,7 @@ export default function ChatPage() {
                 ></ChatMessage>
               </div>
             ))}
-            {isGenerating && <TypingIndicator/>}
+            {isGenerating && <TypingIndicator />}
           </div>
         )}
 
