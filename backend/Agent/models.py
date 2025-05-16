@@ -98,6 +98,18 @@ class ChatbotCodeOutput(BaseModel):
         ],
     )
 
+class ReplacementOutput(BaseModel):
+    """Output model for the chatbot."""
+
+    extracted_code_explanation: str = Field(
+        ...,
+        description="Explanation part of the code in the message",
+    )
+    extracted_code: str = Field(
+        ...,
+        description="Solution part of the part",
+    )
+    
 
 @dataclass
 class AgentDeps:

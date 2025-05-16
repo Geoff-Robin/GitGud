@@ -47,13 +47,13 @@ class ChatBot:
 
         self._extractor_model: Agent[None, ChatbotCodeOutput]
         self._chat_model: Agent[None, str]
-        self._code_replacement_model: Agent[None, str]
+        self._code_replacement_model: Agent[None, ReplacementOutput]
         self._judge_model: Agent[None, JudgeOutput]
         self._deps = AgentDeps(api_key=self._API_KEY, http_client=AsyncClient)
         self._chat_settings = {"temperature": 0.3}
         self._judge_settings = {"temperature": 0.3}
         self._replacement_settings = {"temperature": 0.8}
-        self._summarizer_settings = {"temperature": 0.4}
+        self._summarizer_settings = {"temperature": 0.4,"seed":432}
         self._original_response = [False, ""]
 
     async def should_run(
@@ -192,16 +192,17 @@ class ChatBot:
                 )
             else:
                 self._code_replacement_model = Agent(
-                    model="groq:llama-3.1-8b-instant",
+                    model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
                     system_prompt=CODE_REPLACEMENT_PROMPT,
                     model_settings=self._replacement_settings,
-                    deps_type=AgentDeps,
+                    output_type = ReplacementOutput,
+                    deps_type=AgentDeps
                 )
-                prompt = "Original:\n"+self._original_response[1]+"\n\nUser Provided Code:\n\n"+state["extract_code"]["extracted_code"]
+                prompt = "Original:\n"+self._original_response[1]+"\n\nUser-Provided Code:\n\n"+state["extract_code"]["extracted_code"]
                 replacement_result = await self._code_replacement_model.run(prompt)
                 state["messages"].append({
                     "role":"assistant",
-                    "content":replacement_result.output
+                    "content":replacement_result.output.extracted_code+"\n\n\n"+replacement_result.output.extracted_code_explanation
                 })
                 self._original_response[0] = False
             state["extract_code"] = None
@@ -228,7 +229,7 @@ class ChatBot:
         )
         reflection_graph = create_reflection_graph(agent_graph, judge_graph).compile()
         self._extractor_model = Agent(
-            model="groq:meta-llama/llama-4-maverick-17b-128e-instruct",
+            model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
             system_prompt=EXTRACTION_SYSTEM_PROMPT,
             model_settings=self._chat_settings,
             deps_type=AgentDeps,

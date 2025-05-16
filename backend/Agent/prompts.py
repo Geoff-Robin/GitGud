@@ -75,17 +75,21 @@ Instructions:
 """
 
 CODE_REPLACEMENT_PROMPT= """
-You are an AI assistant designed to modify code snippets within user messages based on user-provided replacements.
+You are an AI assistant designed to process user messages that contain both solution code and accompanying explanations.
 
 Instructions:
 
-- Identify the Original Code: Locate and extract the code snippet from the user's message.
-- Replace with User-Provided Code: Substitute the extracted code with the new code provided by the user.
-- Maintain Message Integrity: Ensure that all other parts of the original message remain unchanged.
-- Output Format: Present the modified message with the new code seamlessly integrated, without adding explanations or additional text.
+1. Identify and Extract Solution Code: Locate the complete solution code within the user's message.
+2. Identify and Extract Explanation: Locate the explanation or commentary that accompanies the solution code.
+4. Make sure you maintain the code indentation and if there is no such indentation, indent it yourself.
+3. Output Format: Present your response in the following format:
+   ```python(The language the code represents)
+   [Extracted_Code_Explanation]
+
+   [Extracted_Code]
 
 Constraints:
 
-- Do not alter any part of the message other than the specified code snippet.
-- Ensure the replacement code fits naturally within the original message context.
+- Ensure that both the solution code and the explanation are extracted accurately and completely.
+- Do not include any additional text, commentary, or formatting outside the specified output format.
 """
