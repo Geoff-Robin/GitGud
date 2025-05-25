@@ -5,6 +5,7 @@ It includes methods for summarizing conversations, interacting with models, and 
 """
 
 import os
+import re
 import requests
 from dotenv import load_dotenv
 from typing import List, Dict, Any, Literal
@@ -122,7 +123,7 @@ class ChatBot:
         self._original_response[1] += chat_result.output
 
         self._extractor_model = Agent(
-            model="groq:meta-llama/llama-4-maverick-17b-128e-instruct",
+            model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
             system_prompt=EXTRACTION_SYSTEM_PROMPT,
             model_settings=self._chat_settings,
             deps_type=AgentDeps,
@@ -132,16 +133,14 @@ class ChatBot:
         extractor_result = await self._extractor_model.run(
             state["messages"][-1]["content"], deps=self._deps
         )
-        print(extractor_result.output.extracted_code)
-        print(extractor_result.output.validation_code)
         if (
             type(extractor_result.output) == ChatbotCodeOutput
-            and extractor_result.output.extracted_code_language.lower() == "python"
+            and extractor_result.output["extracted_code"].lower() == "python"
         ):
             state["extract_code"] = ExtractCode(
-                extracted_code=extractor_result.output.extracted_code,
-                validation_code=extractor_result.output.validation_code,
-                language=extractor_result.output.extracted_code_language,
+                extracted_code=extractor_result.output["extracted_code"],
+                validation_code=extractor_result.output["validation_code"],
+                language=extractor_result.output["extracted_code_language"],
             )
 
         print("DEBUG: Exiting call_model")
@@ -202,7 +201,7 @@ class ChatBot:
                 replacement_result = await self._code_replacement_model.run(prompt)
                 state["messages"].append({
                     "role":"assistant",
-                    "content":replacement_result.output.extracted_code+"\n\n\n"+replacement_result.output.extracted_code_explanation
+                    "content":'```python\n'+replacement_result.output.extracted_code+"```\n\n\n"+replacement_result.output.extracted_code_explanation
                 })
                 self._original_response[0] = False
             state["extract_code"] = None
@@ -228,13 +227,6 @@ class ChatBot:
             .compile()
         )
         reflection_graph = create_reflection_graph(agent_graph, judge_graph).compile()
-        self._extractor_model = Agent(
-            model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
-            system_prompt=EXTRACTION_SYSTEM_PROMPT,
-            model_settings=self._chat_settings,
-            deps_type=AgentDeps,
-            output_type=ChatbotCodeOutput,
-        )
         print("DEBUG: Exiting create_reflection")
         return reflection_graph
 

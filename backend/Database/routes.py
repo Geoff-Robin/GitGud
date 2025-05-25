@@ -41,9 +41,9 @@ async def create_chat(
             response.status_code = status.HTTP_400_BAD_REQUEST
             return {"error": "Invalid problem URL"}
         if problem_nickname:
-            chatbot = ChatBot(messages=messages, summary="", problem=problem_nickname)
+            chatbot = ChatBot(messages=messages, summary="", problem=problem_statement)
             result = await chatbot.chat()
-            resp = await request.app.database["Chat List"].insert_one(
+            resp = await request.app.database["Chat List"].insert_one(  
                 {
                     "problem": problem_nickname,
                     "user_id": user["_id"],
@@ -62,7 +62,7 @@ async def create_chat(
             )
             return {"message": "Chat created successfully", "chat_id": str(resp.inserted_id)}
         else:
-            chatbot = ChatBot(messages=messages, summary="", problem=problem_url)
+            chatbot = ChatBot(messages=messages, summary="", problem=problem_statement)
             result = await chatbot.chat()
             resp = await request.app.database["Chat List"].insert_one(
                 {
@@ -74,7 +74,7 @@ async def create_chat(
             )
             await request.app.database["Messages"].insert_one(
                 {
-                    "problem": resp.inserted_id,
+                    "chat_id": resp.inserted_id,
                     "user_id": ObjectId(user["_id"]),
                     "role": "assistant",
                     "message": result["response"],

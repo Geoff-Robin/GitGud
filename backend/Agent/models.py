@@ -54,7 +54,7 @@ class ChatMessage(BaseModel):
             ]
         }
 
-class ChatbotCodeOutput(BaseModel):
+class ChatbotCodeOutput(TypedDict):
     """Output model for the chatbot."""
 
     extracted_code_language: str = Field(

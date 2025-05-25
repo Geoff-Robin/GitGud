@@ -84,7 +84,6 @@ async def chat_message(
             diff = now - earliest_time
             time_difference_minutes = diff.total_seconds() / 60
 
-        
         # Formatting chat history
         formatted_history = [
             {"role": m["role"], "content": m["message"]}
@@ -94,8 +93,8 @@ async def chat_message(
 
         summary = chat.get("summary", "")
         problem = chat.get("problem_statement", "")
-        
-        #Calling Level Based Chabot
+
+        # Calling Level Based Chabot
         if time_difference_minutes <= 20:
             chatbot = ChatBot(
                 messages=formatted_history, summary=summary, problem=problem
@@ -109,9 +108,8 @@ async def chat_message(
                 messages=formatted_history, summary=summary, problem=problem, level=2
             )
         result = await chatbot.chat(message=chat_message.message)
-        
-        
-        #Inserting user request after successfull bot response
+
+        # Inserting user request after successfull bot response
         await request.app.database["Messages"].insert_one(
             {
                 "chat_id": ObjectId(chat_id),
