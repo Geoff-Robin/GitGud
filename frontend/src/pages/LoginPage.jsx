@@ -3,12 +3,15 @@ import { useNavigate } from "react-router-dom";
 import BackgroundImage from "@/components/BackgroundImage";
 import { AuroraBackground } from "@/components/ui/aurora-background";
 import { axiosInstance } from "@/axios";
+import {Button} from "@/components/ui/button"
 import Navbar from "../components/ui/navbar";
 import { AuthContext } from "@/context/auth-context";
+import { Loader2 } from "lucide-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading,setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
@@ -16,6 +19,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setLoading(false)
       const response = await axiosInstance.post("/login", {
         email,
         password,
@@ -88,12 +92,23 @@ const LoginPage = () => {
                       required
                     />
                   </div>
-                  <button
+                  {loading?(
+                    <Button
                     type="submit"
                     className="w-full py-2 text-black bg-gray-200 rounded-full text-sm font-semibold hover:bg-gray-300 transition cursor-pointer"
                   >
                     Sign In
-                  </button>
+                  </Button>
+                  ):(
+                    <Button
+                    type="submit"
+                    className="w-full py-2 text-black bg-gray-200 rounded-full text-sm font-semibold hover:bg-gray-300 transition cursor-pointer"
+                    disabled
+                  >
+                    <Loader2 className="animate-spin"/>
+                  </Button>
+                  )}
+                  
                 </form>
 
                 <div className="mt-4 text-center text-xs text-gray-400 transition cursor-pointer">
