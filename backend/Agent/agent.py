@@ -69,7 +69,7 @@ class ChatBot:
         print("DEBUG: Entering summarize")
         print("Entering summarize")
         self._chat_model = Agent(
-            model="groq:qwen-qwq-32b",
+            model="groq:openai/gpt-oss-20b",
             system_prompt=SUMMARIZER_PROMPT,
             model_settings=self._summarizer_settings,
             deps_type=AgentDeps,
@@ -109,7 +109,7 @@ class ChatBot:
             else chat_history
         )
         self._chat_model = Agent(
-            model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
+            model="groq:openai/gpt-oss-20b",
             system_prompt=FINAL_SYSTEM_PROMPT,
             model_settings=self._chat_settings,
             deps_type=AgentDeps,
@@ -123,7 +123,7 @@ class ChatBot:
         self._original_response[1] += chat_result.output
 
         self._extractor_model = Agent(
-            model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
+            model="groq:openai/gpt-oss-20b",
             system_prompt=EXTRACTION_SYSTEM_PROMPT,
             model_settings=self._chat_settings,
             deps_type=AgentDeps,
@@ -164,7 +164,7 @@ class ChatBot:
                 output = result
 
             self._judge_model = Agent(
-                model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
+                model="groq:openai/gpt-oss-20b",
                 system_prompt=JUDGE_SYSTEM_PROMPT,
                 output_type=JudgeOutput,
                 model_settings=self._judge_settings,
@@ -191,7 +191,7 @@ class ChatBot:
                 )
             else:
                 self._code_replacement_model = Agent(
-                    model="groq:meta-llama/llama-4-scout-17b-16e-instruct",
+                    model="groq:openai/gpt-oss-20b",
                     system_prompt=CODE_REPLACEMENT_PROMPT,
                     model_settings=self._replacement_settings,
                     output_type = ReplacementOutput,
